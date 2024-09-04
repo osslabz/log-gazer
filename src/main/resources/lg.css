@@ -1,0 +1,29 @@
+.fatal {
+    -rtfx-background-color: darkred;
+    -fx-fill: white;
+}
+
+.error {
+    -rtfx-background-color: red;
+    -fx-fill: white;
+}
+
+.warn {
+    -rtfx-background-color: orange;
+    -fx-fill: black;
+}
+
+.info {
+    -rtfx-background-color: lightblue;
+    -fx-fill: black;
+}
+
+.debug {
+    -rtfx-background-color: lightgreen;
+    -fx-fill: black;
+}
+
+.trace {
+    -rtfx-background-color: lightgrey;
+    -fx-fill: darkgrey;
+}
