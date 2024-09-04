@@ -1,4 +1,4 @@
-package net.osslabz.lg;
+package net.osslabz.loggazer;
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 

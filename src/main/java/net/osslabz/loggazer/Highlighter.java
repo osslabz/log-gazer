@@ -1,4 +1,4 @@
-package net.osslabz.lg;
+package net.osslabz.loggazer;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;

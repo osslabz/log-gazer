@@ -1,4 +1,4 @@
-package net.osslabz.lg;
+package net.osslabz.loggazer;
 
 import javafx.scene.control.Alert;
 import org.fxmisc.richtext.CodeArea;

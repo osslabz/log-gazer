@@ -1,4 +1,4 @@
-package net.osslabz.lg;
+package net.osslabz.loggazer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

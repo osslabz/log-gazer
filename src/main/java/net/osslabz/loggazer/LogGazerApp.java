@@ -1,4 +1,4 @@
-package net.osslabz.lg;
+package net.osslabz.loggazer;
 
 import javafx.application.Application;
 import javafx.concurrent.Task;
@@ -21,6 +21,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
@@ -42,7 +43,6 @@ import java.util.concurrent.Executors;
 public class LogGazerApp extends Application {
 
     private static final String LOG_GAZER = "Log Gazer";
-
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private Map<String, TabContent> tabContent = new HashMap<>();
@@ -60,7 +60,10 @@ public class LogGazerApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle(LOG_GAZER);
-        primaryStage.setMaximized(true);
+
+        WindowUtils.resizeAndPosition(primaryStage);
+        primaryStage.setOnCloseRequest((WindowEvent event) -> WindowUtils.saveWindowState(primaryStage));
+
 
         Image appIconImage = new Image(LogGazerApp.class.getResourceAsStream("/icon/256.png"));
 
@@ -221,7 +224,7 @@ public class LogGazerApp extends Application {
 
         loadTask.setOnFailed(event -> {
             String message = event.getSource().getException().getMessage();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load file: %s. Error: %s.".formatted(file.getName(), message));
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load file: %s. Error: %s." .formatted(file.getName(), message));
             alert.showAndWait();
         });
 
@@ -267,6 +270,4 @@ public class LogGazerApp extends Application {
             this.openFileInNewTab(file);
         }
     }
-
-
 }

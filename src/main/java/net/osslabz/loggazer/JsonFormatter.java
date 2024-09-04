@@ -1,4 +1,4 @@
-package net.osslabz.lg;
+package net.osslabz.loggazer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,10 +13,9 @@ public class JsonFormatter {
     static String format(String text) {
         try {
             Object json = OBJECT_MAPPER.readValue(text, Object.class);
-            String formattedJson = OBJECT_MAPPER.writeValueAsString(json);
-            return formattedJson;
+            return OBJECT_MAPPER.writeValueAsString(json);
         } catch (JsonProcessingException e) {
-            log.warn("Couldn't format JSON. error: {}", e.getLocation());
+            log.warn("Couldn't format JSON.", e);
         }
         return text;
     }
