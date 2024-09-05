@@ -30,21 +30,66 @@ public class Highlighter {
     }
 
     static StyleSpans<Collection<String>> highlighLogLevel(String text) {
-        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+        if (JsonUtils.textMightBeJson(text)) {
+            return highlightLogLevelJson(text);
+        } else {
+            return highlightRegularFile(text);
+        }
+    }
 
+    private static StyleSpans<Collection<String>> highlightLogLevelJson(String text) {
+        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
         int numLines = 0;
 
         try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
-            String line = null;
-            String lastLevel = null;
-            int maxLineLength = -1;
 
+            String line = null;
+            int logSegmentLength = 0;
+            String segmentLevel = null;
             while ((line = reader.readLine()) != null) {
                 numLines++;
-                if (line.length() > maxLineLength) {
-                    maxLineLength = line.length();
+
+                if (line.equals("{")) {
+                    logSegmentLength = line.length() + 1;
+                    segmentLevel = null;
+                } else if (line.equals("}")) {
+                    spansBuilder.add(List.of(segmentLevel.toLowerCase()), logSegmentLength + line.length() + 1);
+                } else {
+                    logSegmentLength += line.length() + 1;
+
+                    for (String logLevel : LOG_LEVEL) {
+                        if (line.contains(logLevel)) {
+                            segmentLevel = logLevel;
+                            break;
+                        }
+                    }
                 }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        StyleSpans<Collection<String>> styleSpans = spansBuilder.create();
+
+        log.debug("file contains {} lines, {} spans calculated", numLines, styleSpans.length());
+
+        return styleSpans;
+    }
+
+    static StyleSpans<Collection<String>> highlightRegularFile(String text) {
+        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+
+        int numLines = 0;
+
+        try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
+
+            String lastLogLevel = null;
+
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                numLines++;
+
                 boolean matchedLine = false;
 
                 List<String> styles = new ArrayList<>(2);
@@ -52,14 +97,14 @@ public class Highlighter {
                 for (String logLevel : LOG_LEVEL) {
                     if (line.contains(logLevel)) {
                         styles.add(logLevel.toLowerCase());
-                        lastLevel = logLevel;
+                        lastLogLevel = logLevel;
                         matchedLine = true;
                         break;
                     }
                 }
                 if (!matchedLine) {
-                    log.debug("No log level found on line {}, using previous level {}", numLines, lastLevel);
-                    styles.add(lastLevel.toLowerCase());
+                    log.debug("No log level found on line {}, using previous level {}", numLines, lastLogLevel);
+                    styles.add(lastLogLevel.toLowerCase());
                 }
 
                 spansBuilder.add(styles, line.length() + 1);

@@ -59,6 +59,17 @@ public class LogGazerApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+
+        if (Taskbar.isTaskbarSupported()) {
+            var taskbar = Taskbar.getTaskbar();
+
+            if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+                final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+                var dockIcon = defaultToolkit.getImage(getClass().getResource("/icon/256.png"));
+                taskbar.setIconImage(dockIcon);
+            }
+        }
+
         primaryStage.setTitle(LOG_GAZER);
 
         WindowUtils.resizeAndPosition(primaryStage);
@@ -69,16 +80,6 @@ public class LogGazerApp extends Application {
 
         primaryStage.getIcons().add(appIconImage);
 
-        if (Taskbar.isTaskbarSupported()) {
-            var taskbar = Taskbar.getTaskbar();
-
-            if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
-                final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-                var dockIcon = defaultToolkit.getImage(getClass().getResource("/icon/256.png"));
-                taskbar.setIconImage(dockIcon);
-            }
-
-        }
         this.tabPane = createAndConfigureTabPane(primaryStage);
 
         BorderPane root = new BorderPane();
@@ -102,7 +103,7 @@ public class LogGazerApp extends Application {
             StyleSpans<Collection<String>> currentStyleSpans = codeArea.getStyleSpans(0, currentText.length());
 
             if (currentStyleSpans.getSpanCount() <= 1) {
-                codeArea.setStyleSpans(0, computeHighlighting(currentText));
+                codeArea.setStyleSpans(0, Highlighter.highlighLogLevel(currentText));
             } else {
                 codeArea.setStyleSpans(0, Highlighter.computeEmptyStyle(currentText));
             }
@@ -125,9 +126,9 @@ public class LogGazerApp extends Application {
             String currentText = codeArea.getText();
 
             if (currentText.equals(originalContent)) {
-                codeArea.replaceText(0, 0, JsonFormatter.format(currentText));
+                codeArea.replaceText(JsonUtils.format(currentText));
             } else {
-                codeArea.replaceText(0, 0, originalContent);
+                codeArea.replaceText(originalContent);
             }
         });
 
@@ -158,7 +159,7 @@ public class LogGazerApp extends Application {
 
                 this.buttonMarkLogLevel.setDisable(false);
 
-                if (textMightBeJson(currentText)) {
+                if (JsonUtils.textMightBeJson(currentText)) {
                     this.buttonFormatJson.setDisable(false);
                 } else {
                     this.buttonFormatJson.setDisable(true);
@@ -178,10 +179,6 @@ public class LogGazerApp extends Application {
             }
         });
         return tabPane;
-    }
-
-    private static boolean textMightBeJson(String currentText) {
-        return (currentText.startsWith("{") && currentText.endsWith("}")) || (currentText.startsWith("[") && currentText.endsWith("]"));
     }
 
 
@@ -224,7 +221,7 @@ public class LogGazerApp extends Application {
 
         loadTask.setOnFailed(event -> {
             String message = event.getSource().getException().getMessage();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load file: %s. Error: %s." .formatted(file.getName(), message));
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load file: %s. Error: %s.".formatted(file.getName(), message));
             alert.showAndWait();
         });
 
@@ -232,14 +229,7 @@ public class LogGazerApp extends Application {
     }
 
 
-    protected StyleSpans<Collection<String>> computeHighlighting(String text) {
-
-        if (textMightBeJson(text)) {
-            return Highlighter.highlightJson(text);
-        } else {
-            return Highlighter.highlighLogLevel(text);
-        }
-    }
+    ;
 
 
     private MenuBar createMenuBar() {
