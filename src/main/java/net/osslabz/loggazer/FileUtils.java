@@ -31,7 +31,7 @@ public class FileUtils {
         try (FileInputStream fis = new FileInputStream(file);
              BufferedInputStream bis = new BufferedInputStream(fis);
              GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(gzis));
+             BufferedReader reader = new BufferedReader(new InputStreamReader(gzis))
         ) {
             return reader.lines().collect(Collectors.joining("\n"));
         }

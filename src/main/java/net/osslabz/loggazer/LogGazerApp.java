@@ -44,9 +44,9 @@ import java.util.concurrent.Executors;
 public class LogGazerApp extends Application {
 
     private static final String LOG_GAZER = "Log Gazer";
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private Map<String, TabContent> tabContent = new HashMap<>();
+    private final Map<String, TabContent> tabContent = new HashMap<>();
 
     private TabPane tabPane;
     private Button buttonMarkLogLevel;
@@ -219,11 +219,7 @@ public class LogGazerApp extends Application {
 
                 this.buttonMarkLogLevel.setDisable(false);
 
-                if (JsonUtils.textMightBeJson(currentText)) {
-                    this.buttonFormatJson.setDisable(false);
-                } else {
-                    this.buttonFormatJson.setDisable(true);
-                }
+                this.buttonFormatJson.setDisable(!JsonUtils.textMightBeJson(currentText));
 
                 File fileInTab = currentTabContent.getFile();
                 try {
@@ -287,9 +283,6 @@ public class LogGazerApp extends Application {
 
         new Thread(loadTask).start();
     }
-
-
-    ;
 
 
     private MenuBar createMenuBar() {
