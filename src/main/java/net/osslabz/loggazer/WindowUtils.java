@@ -44,15 +44,15 @@ public class WindowUtils {
     }
 
     private static boolean getMaximized() {
-        return UserPreferences.getBoolean(PREFS_HEIGHT, false);
+        return UserPreferences.getBoolean(PREFS_MAXIMIZED, false);
     }
 
     private static double getHeight() {
-        return UserPreferences.getDouble(PREFS_HEIGHT, 600);
+        return UserPreferences.getDouble(PREFS_HEIGHT, DEFAULT_WIDTH);
     }
 
     private static double getWidth() {
-        return UserPreferences.getDouble(PREFS_WIDTH, 800);
+        return UserPreferences.getDouble(PREFS_WIDTH, DEFAULT_HEIGHT);
     }
 
     private static double getY() {

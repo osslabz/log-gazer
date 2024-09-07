@@ -6,7 +6,7 @@
 
     <groupId>net.osslabz</groupId>
     <artifactId>log-gazer</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,10 +14,9 @@
 
         <mainClass>net.osslabz.loggazer.AppStarter</mainClass>
 
-        <javafx.version>22.0.2</javafx.version>
+        <javafx.version>21.0.4</javafx.version>
         <richtextfx.version>0.11.3</richtextfx.version>
         <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
-        <imageName>log-gazer</imageName>
     </properties>
 
     <dependencies>
@@ -25,6 +24,7 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.fxmisc.richtext</groupId>
@@ -65,7 +65,7 @@
 
     <profiles>
         <profile>
-            <id>native</id>
+            <id>native-graalvm-default</id>
             <build>
                 <plugins>
                     <plugin>
@@ -84,6 +84,104 @@
                         </executions>
                         <configuration>
                             <mainClass>${mainClass}</mainClass>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>native-graalvm-gluon</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.gluonhq</groupId>
+                        <artifactId>gluonfx-maven-plugin</artifactId>
+                        <version>1.0.23</version>
+                        <configuration>
+                            <graalvmHome>/Users/ravu/.sdkman/candidates/java/22.1.0.1.r17-gln</graalvmHome>
+                            <mainClass>${mainClass}</mainClass>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>native-jpackage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <version>1.6.5</version>
+                        <configuration>
+                            <destination>${project.build.directory}/dist</destination>
+                            <input>${project.build.directory}</input>
+                            <mainJar>${project.build.finalName}.jar</mainJar>
+                            <mainClass>${mainClass}</mainClass>
+                            <icon>${project.build.outputDirectory}/icon/log-gazer.icns</icon>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>win</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <version>1.6.4</version>
+                        <configuration>
+                            <icon>{project.build.outputDirectory}/icon/icon-256.png</icon>
+                            <winMenu>true</winMenu>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <version>1.6.4</version>
+
+                        <configuration>
+                            <icon>{project.build.outputDirectory}/icon/log-gazer.icns</icon>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <version>1.6.4</version>
+                        <configuration>
+                            <type>APP_IMAGE</type>
+                            <icon>{project.build.outputDirectory}/icon/icon-256.png</icon>
                         </configuration>
                     </plugin>
                 </plugins>

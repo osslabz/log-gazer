@@ -11,6 +11,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -88,31 +89,77 @@ public class LogGazerApp extends Application {
         MenuBar menuBar = createMenuBar();
         ToolBar toolBar = new ToolBar();
 
-        this.buttonMarkLogLevel = new Button("Mark Log Level");
-        buttonMarkLogLevel.setDisable(true);
+        this.buttonMarkLogLevel = createAndCofigureMarkLogLevelButton();
+        this.buttonFormatJson = createButtonFormatJson();
 
-        buttonMarkLogLevel.setOnAction(evt -> {
-            Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
-            if (selectedTab == null) {
-                return;
-            }
+        toolBar.getItems().add(buttonFormatJson);
+        toolBar.getItems().add(new Separator());
+        toolBar.getItems().add(buttonMarkLogLevel);
 
-            CodeArea codeArea = this.tabContent.get(selectedTab.getId()).getCodeArea();
+        VBox topContainer = new VBox(menuBar, toolBar);
+        root.setTop(topContainer);
 
-            String currentText = codeArea.getText();
-            StyleSpans<Collection<String>> currentStyleSpans = codeArea.getStyleSpans(0, currentText.length());
+        Scene scene = new Scene(root, 800, 600);
 
-            if (currentStyleSpans.getSpanCount() <= 1) {
-                codeArea.setStyleSpans(0, Highlighter.highlighLogLevel(currentText));
-            } else {
-                codeArea.setStyleSpans(0, Highlighter.computeEmptyStyle(currentText));
+        KeyCombination searchKeyCombination = new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN);
+        scene.addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+            if (searchKeyCombination.match(event)) {
+                Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+                if (selectedTab != null) {
+                    showSearchDialog();
+                }
             }
         });
 
-        this.buttonFormatJson = new Button("Format JSON");
-        buttonFormatJson.setDisable(true);
 
-        buttonFormatJson.setOnAction(evt -> {
+        scene.getStylesheets().add(LogGazerApp.class.getResource("/lg.css").toExternalForm());
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+
+    private void showSearchDialog() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Search");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Enter search term:");
+
+        dialog.showAndWait().ifPresent(this::searchText);
+    }
+
+
+    private void searchText(String searchTerm) {
+
+        Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+        if (selectedTab == null) {
+            return;
+        }
+
+        TabContent selectedTabContent = this.tabContent.get(selectedTab.getId());
+
+        CodeArea codeArea = selectedTabContent.getCodeArea();
+        String text = codeArea.getText().toLowerCase();
+
+        int index = text.indexOf(searchTerm.toLowerCase());
+        if (index != -1) {
+            codeArea.selectRange(index, index + searchTerm.length());
+            codeArea.requestFocus();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Search Result");
+            alert.setHeaderText(null);
+            alert.setContentText("Text not found.");
+            alert.showAndWait();
+        }
+    }
+
+
+    private Button createButtonFormatJson() {
+        Button button = new Button("Format JSON");
+        button.setDisable(true);
+
+        button.setOnAction(evt -> {
             Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
             if (selectedTab == null) {
                 return;
@@ -131,19 +178,32 @@ public class LogGazerApp extends Application {
                 codeArea.replaceText(originalContent);
             }
         });
+        return button;
+    }
 
-        toolBar.getItems().add(buttonMarkLogLevel);
-        toolBar.getItems().add(new Separator());
-        toolBar.getItems().add(buttonFormatJson);
 
-        VBox topContainer = new VBox(menuBar, toolBar);
+    private Button createAndCofigureMarkLogLevelButton() {
+        Button button = new Button("Mark Log Level");
+        button.setDisable(true);
 
-        root.setTop(topContainer);
-        Scene scene = new Scene(root, 800, 600);
-        scene.getStylesheets().add(LogGazerApp.class.getResource("/lg.css").toExternalForm());
+        button.setOnAction(evt -> {
+            Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+            if (selectedTab == null) {
+                return;
+            }
 
-        primaryStage.setScene(scene);
-        primaryStage.show();
+            CodeArea codeArea = tabContent.get(selectedTab.getId()).getCodeArea();
+
+            String currentText = codeArea.getText();
+            StyleSpans<Collection<String>> currentStyleSpans = codeArea.getStyleSpans(0, currentText.length());
+
+            if (currentStyleSpans.getSpanCount() <= 1) {
+                codeArea.setStyleSpans(0, Highlighter.highlightLogLevel(currentText));
+            } else {
+                codeArea.setStyleSpans(0, Highlighter.computeEmptyStyle(currentText));
+            }
+        });
+        return button;
     }
 
 

@@ -14,40 +14,65 @@ public class JsonUtils {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
-    static boolean textMightBeJson(String currentText) {
-        String trimmed = currentText.trim();
+    static boolean textMightBeJson(String text) {
+        if (lineMightBeJson(text)) {
+            return true;
+        }
+        int numLines = 0;
+        int numJsonLines = 0;
+        try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                numLines++;
+                if (lineMightBeJson(line)) {
+                    numJsonLines++;
+                    if (numJsonLines > 5) {
+                        return true;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return numLines == numJsonLines;
+    }
+
+
+    private static boolean lineMightBeJson(String line) {
+        String trimmed = line.trim();
         return (trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"));
     }
+
 
     static String format(String text) {
 
         StringBuilder sb = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
-            int lineNumber = 1;
             String line = null;
             while ((line = reader.readLine()) != null) {
-                if (textMightBeJson(line)) {
-                    log.debug("line {} appears to be JSON", lineNumber);
-                    sb.append(formatLine(line)).append("\n");
+                if (lineMightBeJson(line)) {
+                    sb.append(formatLine(line)).append(System.lineSeparator());
                 } else {
-                    log.debug("line {} does not appear to be JSON", lineNumber);
-                    sb.append(line).append("\n");
+                    sb.append(line).append(System.lineSeparator());
                 }
-                lineNumber++;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return sb.toString();
+        String formattedJson = sb.toString();
+        formattedJson = formattedJson.replace("\\n", System.lineSeparator());
+        formattedJson = formattedJson.replace("\\t", "\t");
+        return formattedJson;
     }
 
-    private static String formatLine(String text) {
+
+    private static String formatLine(String line) {
         try {
-            Object json = OBJECT_MAPPER.readValue(text, Object.class);
+            Object json = OBJECT_MAPPER.readValue(line, Object.class);
             return OBJECT_MAPPER.writeValueAsString(json);
         } catch (JsonProcessingException e) {
             log.warn("Couldn't format JSON.", e);
         }
-        return text;
+        return line;
     }
 }

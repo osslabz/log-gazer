@@ -1,8 +1,6 @@
 package net.osslabz.loggazer;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import lombok.extern.slf4j.Slf4j;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -29,7 +27,7 @@ public class Highlighter {
         return spansBuilder.create();
     }
 
-    static StyleSpans<Collection<String>> highlighLogLevel(String text) {
+    static StyleSpans<Collection<String>> highlightLogLevel(String text) {
         if (JsonUtils.textMightBeJson(text)) {
             return highlightLogLevelJson(text);
         } else {
@@ -77,6 +75,7 @@ public class Highlighter {
         return styleSpans;
     }
 
+
     static StyleSpans<Collection<String>> highlightRegularFile(String text) {
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
@@ -118,61 +117,5 @@ public class Highlighter {
         log.debug("file contains {} lines, {} spans calculated", numLines, styleSpans.length());
 
         return styleSpans;
-    }
-
-
-    static StyleSpans<Collection<String>> highlightJson(String code) {
-        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
-
-        int lastPos = 0;
-        try {
-            JsonParser parser = JSON_FACTORY.createParser(code);
-            while (!parser.isClosed()) {
-                JsonToken jsonToken = parser.nextToken();
-
-                int length = parser.getTextLength();
-                // Because getTextLength() does contain the surrounding ""
-                if (jsonToken == JsonToken.VALUE_STRING || jsonToken == JsonToken.FIELD_NAME) {
-                    length += 2;
-                }
-
-                String className = jsonTokenToClassName(jsonToken);
-                if (!className.isEmpty()) {
-                    int start = (int) parser.getTokenLocation().getCharOffset();
-                    // Fill the gaps, since Style Spans need to be contiguous.
-                    if (start > lastPos) {
-                        int noStyleLength = start - lastPos;
-                        spansBuilder.add(Collections.emptyList(), noStyleLength);
-                    }
-                    lastPos = start + length;
-
-                    spansBuilder.add(Collections.singleton(className), length);
-                }
-            }
-        } catch (IOException e) {
-            // Ignoring JSON parsing exception in the context of
-            // syntax highlighting
-        }
-        if (lastPos == 0) {
-            spansBuilder.add(Collections.emptyList(), code.length());
-        }
-        return spansBuilder.create();
-    }
-
-    static String jsonTokenToClassName(JsonToken jsonToken) {
-        if (jsonToken == null) {
-            return "";
-        }
-        switch (jsonToken) {
-            case FIELD_NAME:
-                return "json-property";
-            case VALUE_STRING:
-                return "json-string";
-            case VALUE_NUMBER_FLOAT:
-            case VALUE_NUMBER_INT:
-                return "json-number";
-            default:
-                return "";
-        }
     }
 }

@@ -24,6 +24,6 @@
 }
 
 .trace {
-    -rtfx-background-color: lightgrey;
+    -rtfx-background-color: white;
     -fx-fill: darkgrey;
 }
