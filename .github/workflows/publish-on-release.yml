@@ -8,7 +8,6 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
-        version: [ a, b, c ]
 
     runs-on: ${{ matrix.os }}
 
@@ -27,7 +26,7 @@ jobs:
 
           server-password: MAVEN_PASSWORD
       - name: build-and-package
-        run: mvn --batch-mode -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} mvn -Pnative-jpackage clean package jpackage:jpackage
+        run: mvn -Pnative-jpackage clean package jpackage:jpackage
 
       - name: build-and-package
         uses: actions/upload-artifact@v4
