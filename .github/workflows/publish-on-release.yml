@@ -11,19 +11,26 @@ jobs:
         version: [ a, b, c ]
 
     runs-on: ${{ matrix.os }}
+
     steps:
-      - name: Checkout
-      - uses: actions/checkout@v4
-      - name: Set up JDK
+      - name: checkout-repo
+        uses: actions/checkout@v4
+
+      - name: setup-jdk
         uses: actions/setup-java@v4
         with:
           java-version: 21
           distribution: 'temurin'
-          cache: maven
-      - name: build package
+          cache: 'maven'
+          server-id: github
+          server-username: MAVEN_USERNAME
+
+          server-password: MAVEN_PASSWORD
+      - name: build-and-package
         run: mvn --batch-mode -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} mvn -Pnative-jpackage clean package jpackage:jpackage
 
-      - uses: actions/upload-artifact@v4
+      - name: build-and-package
+        uses: actions/upload-artifact@v4
         with:
           name: log-gazer-${{ matrix.os }}
           path: target/dist/*
