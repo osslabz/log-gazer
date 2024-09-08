@@ -12,9 +12,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
 
-        <mainClass>net.osslabz.loggazer.AppStarter</mainClass>
+        <mainClass>net.osslabz.loggazer.LogGazerApp</mainClass>
 
-        <javafx.version>21.0.4</javafx.version>
+        <javafx.version>22.0.2</javafx.version>
         <richtextfx.version>0.11.3</richtextfx.version>
         <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
     </properties>
@@ -24,7 +24,6 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.fxmisc.richtext</groupId>
@@ -116,9 +115,8 @@
                         <configuration>
                             <destination>${project.build.directory}/dist</destination>
                             <input>${project.build.directory}</input>
-                            <mainJar>${project.build.finalName}.jar</mainJar>
+                            <mainJar>${project.artifactId}-${project.version}.jar</mainJar>
                             <mainClass>${mainClass}</mainClass>
-                            <icon>${project.build.outputDirectory}/icon/log-gazer.icns</icon>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -138,8 +136,29 @@
                         <artifactId>jpackage-maven-plugin</artifactId>
                         <version>1.6.4</version>
                         <configuration>
-                            <icon>{project.build.outputDirectory}/icon/icon-256.png</icon>
+                            <icon>${project.build.outputDirectory}/icon/icon-256.png</icon>
                             <winMenu>true</winMenu>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>unix</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <version>1.6.4</version>
+                        <configuration>
+                            <type>APP_IMAGE</type>
+                            <icon>${project.build.outputDirectory}/icon/icon-256.png</icon>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -158,30 +177,9 @@
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
                         <version>1.6.4</version>
-
                         <configuration>
-                            <icon>{project.build.outputDirectory}/icon/log-gazer.icns</icon>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>linux</id>
-            <activation>
-                <os>
-                    <family>unix</family>
-                </os>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.panteleyev</groupId>
-                        <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>1.6.4</version>
-                        <configuration>
-                            <type>APP_IMAGE</type>
-                            <icon>{project.build.outputDirectory}/icon/icon-256.png</icon>
+                            <type>DMG</type>
+                            <icon>${project.build.outputDirectory}/icon/log-gazer.icns</icon>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -190,6 +188,13 @@
     </profiles>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.1</version>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
