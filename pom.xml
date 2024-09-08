@@ -134,7 +134,7 @@
                     <plugin>
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>1.6.4</version>
+                        <version>1.6.5</version>
                         <configuration>
                             <icon>${project.build.outputDirectory}/icon/icon-256.png</icon>
                             <winMenu>true</winMenu>
@@ -155,7 +155,7 @@
                     <plugin>
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>1.6.4</version>
+                        <version>1.6.5</version>
                         <configuration>
                             <type>APP_IMAGE</type>
                             <icon>${project.build.outputDirectory}/icon/icon-256.png</icon>
@@ -176,7 +176,7 @@
                     <plugin>
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>1.6.4</version>
+                        <version>1.6.5</version>
                         <configuration>
                             <type>DMG</type>
                             <icon>${project.build.outputDirectory}/icon/log-gazer.icns</icon>
