@@ -22,16 +22,10 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: build-and-package
-        run: mvn -Pnative-jpackage clean package jpackage:jpackage
+        run: mvn -Pnative-jpackage clean verify
 
-      - name: get-cpu-architecture
-        shell: bash
-        run: |
-          ARCH=$(uname -m)
-          echo "CPU_ARCHITECTURE=$ARCH" >> $GITHUB_ENV
-
-      - name: build-and-package
-        uses: actions/upload-artifact@v4
+      - name: upload-to-release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          name: log-gazer-${{ env.CPU_ARCHITECTURE }}
-          path: target/dist/*
+          files: dist/*
