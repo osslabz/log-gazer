@@ -7,7 +7,7 @@ jobs:
   publish:
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-13, macos-14 ]
 
     runs-on: ${{ matrix.os }}
 
@@ -21,15 +21,17 @@ jobs:
           java-version: 21
           distribution: 'temurin'
           cache: 'maven'
-          server-id: github
-          server-username: MAVEN_USERNAME
-
-          server-password: MAVEN_PASSWORD
       - name: build-and-package
         run: mvn -Pnative-jpackage clean package jpackage:jpackage
+
+      - name: get-cpu-architecture
+        shell: bash
+        run: |
+          ARCH=$(uname -m)
+          echo "CPU_ARCHITECTURE=$ARCH" >> $GITHUB_ENV
 
       - name: build-and-package
         uses: actions/upload-artifact@v4
         with:
-          name: log-gazer-${{ matrix.os }}
+          name: log-gazer-${{ env.CPU_ARCHITECTURE }}
           path: target/dist/*

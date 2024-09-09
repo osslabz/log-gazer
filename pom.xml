@@ -17,6 +17,7 @@
         <javafx.version>22.0.2</javafx.version>
         <richtextfx.version>0.11.3</richtextfx.version>
         <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
+        <jpackage.maven.plugin.version>1.6.5</jpackage.maven.plugin.version>
     </properties>
 
     <dependencies>
@@ -30,12 +31,12 @@
             <artifactId>richtextfx</artifactId>
             <version>${richtextfx.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
             <version>1.27.1</version>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -111,7 +112,7 @@
                     <plugin>
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>1.6.5</version>
+                        <version>${jpackage.maven.plugin.version}</version>
                         <configuration>
                             <destination>${project.build.directory}/dist</destination>
                             <input>${project.build.directory}</input>
@@ -134,8 +135,9 @@
                     <plugin>
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>1.6.4</version>
+                        <version>${jpackage.maven.plugin.version}</version>
                         <configuration>
+                            <type>EXE</type>
                             <icon>${project.build.outputDirectory}/icon/icon-256.png</icon>
                             <winMenu>true</winMenu>
                         </configuration>
@@ -155,9 +157,9 @@
                     <plugin>
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>1.6.4</version>
+                        <version>${jpackage.maven.plugin.version}</version>
                         <configuration>
-                            <type>APP_IMAGE</type>
+                            <type>DEB</type>
                             <icon>${project.build.outputDirectory}/icon/icon-256.png</icon>
                         </configuration>
                     </plugin>
@@ -176,7 +178,7 @@
                     <plugin>
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>1.6.4</version>
+                        <version>${jpackage.maven.plugin.version}</version>
                         <configuration>
                             <type>DMG</type>
                             <icon>${project.build.outputDirectory}/icon/log-gazer.icns</icon>
