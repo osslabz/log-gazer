@@ -119,7 +119,7 @@
                         <artifactId>jpackage-maven-plugin</artifactId>
                         <version>${jpackage.maven.plugin.version}</version>
                         <configuration>
-                            <type>EXE</type>
+                            <type>MSI</type>
                             <icon>${project.build.outputDirectory}/icon/icon-256.png</icon>
                             <winMenu>true</winMenu>
                         </configuration>
