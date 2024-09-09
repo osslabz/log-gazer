@@ -66,7 +66,7 @@ public class LogGazerApp extends Application {
 
             if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
                 final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-                var dockIcon = defaultToolkit.getImage(getClass().getResource("/icon/256.png"));
+                var dockIcon = defaultToolkit.getImage(getClass().getResource("/icon/icon-256.png"));
                 taskbar.setIconImage(dockIcon);
             }
         }
@@ -77,7 +77,7 @@ public class LogGazerApp extends Application {
         primaryStage.setOnCloseRequest((WindowEvent event) -> WindowUtils.saveWindowState(primaryStage));
 
 
-        Image appIconImage = new Image(LogGazerApp.class.getResourceAsStream("/icon/256.png"));
+        Image appIconImage = new Image(LogGazerApp.class.getResourceAsStream("/icon/icon-256.png"));
 
         primaryStage.getIcons().add(appIconImage);
 
