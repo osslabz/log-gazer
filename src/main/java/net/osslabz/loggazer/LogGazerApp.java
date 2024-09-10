@@ -265,13 +265,19 @@ public class LogGazerApp extends Application {
 
             TabContent newTabContent = new TabContent(file, rawContent, codeArea);
 
+
             VirtualizedScrollPane<CodeArea> scrollPane = new VirtualizedScrollPane<>(codeArea);
 
             VBox.setVgrow(scrollPane, Priority.ALWAYS);
             VBox contentBox = new VBox(scrollPane);
             contentBox.setFillWidth(true);
+            TouchpadScrollHandler touchpadScrollHandler = new TouchpadScrollHandler();
+            contentBox.setOnScroll(touchpadScrollHandler::handleScrollEvent);
+
 
             Tab tab = new Tab(file.getName(), contentBox);
+
+
             tab.setId(UUID.randomUUID() + "_" + file.getName());
             this.tabContent.put(tab.getId(), newTabContent);
             this.tabPane.getTabs().add(tab);
