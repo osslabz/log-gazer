@@ -5,7 +5,7 @@
 
 .error {
     -rtfx-background-color: red;
-    -fx-fill: white;
+    -fx-fill: black;
 }
 
 .warn {
