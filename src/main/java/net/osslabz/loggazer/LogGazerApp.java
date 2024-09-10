@@ -143,8 +143,12 @@ public class LogGazerApp extends Application {
 
         int index = text.indexOf(searchTerm.toLowerCase());
         if (index != -1) {
-            codeArea.selectRange(index, index + searchTerm.length());
+            int caretPosition = index + searchTerm.length();
+            codeArea.moveTo(caretPosition);
+            codeArea.selectRange(index, caretPosition);
+            codeArea.requestFollowCaret();
             codeArea.requestFocus();
+
         } else {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Search Result");
@@ -277,7 +281,7 @@ public class LogGazerApp extends Application {
 
         loadTask.setOnFailed(event -> {
             String message = event.getSource().getException().getMessage();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load file: %s. Error: %s.".formatted(file.getName(), message));
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load file: %s. Error: %s." .formatted(file.getName(), message));
             alert.showAndWait();
         });
 
