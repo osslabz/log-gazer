@@ -96,7 +96,7 @@
                     <plugin>
                         <groupId>com.gluonhq</groupId>
                         <artifactId>gluonfx-maven-plugin</artifactId>
-                        <version>1.0.23</version>
+                        <version>1.0.24</version>
                         <configuration>
                             <graalvmHome>/Users/ravu/.sdkman/candidates/java/22.1.0.1.r17-gln</graalvmHome>
                             <mainClass>${mainClass}</mainClass>
