@@ -1,9 +1,10 @@
 package net.osslabz.loggazer;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import lombok.extern.slf4j.Slf4j;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,12 +15,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-@Slf4j
 public class Highlighter {
 
-    private static final JsonFactory JSON_FACTORY = new JsonFactory();
+    public static final Logger log = LoggerFactory.getLogger(Highlighter.class);
 
     private static final Set<String> LOG_LEVEL = Set.of("FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE");
+
+    private Highlighter() {
+        // intentionally empty
+    }
+
 
     static StyleSpans<Collection<String>> computeEmptyStyle(String currentText) {
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
@@ -31,52 +36,81 @@ public class Highlighter {
         if (JsonUtils.textMightBeJson(text)) {
             return highlightLogLevelJson(text);
         } else {
-            return highlightRegularFile(text);
+            return highlightLogLevelRegularFile(text);
         }
     }
 
     private static StyleSpans<Collection<String>> highlightLogLevelJson(String text) {
-        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
-        int numLines = 0;
+
+        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
         try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
 
             String line = null;
+            String logLevelForCurrentSegment = null;
+            boolean insideJson = false;
+
             int logSegmentLength = 0;
-            String segmentLevel = null;
+
+            int numLines = 0;
+            int numSegmentsOpened = 0;
+            int numSegmentsClosed = 0;
+
             while ((line = reader.readLine()) != null) {
-                numLines++;
+
+                int fullLineLength = line.length() + 1;
 
                 if (line.equals("{")) {
-                    logSegmentLength = line.length() + 1;
-                    segmentLevel = null;
+                    insideJson = true;
+                    logSegmentLength = fullLineLength;
+                    numSegmentsOpened++;
                 } else if (line.equals("}")) {
-                    spansBuilder.add(List.of(segmentLevel.toLowerCase()), logSegmentLength + line.length() + 1);
+                    if (logLevelForCurrentSegment != null) {
+                        spansBuilder.add(List.of(logLevelForCurrentSegment.toLowerCase()), logSegmentLength + fullLineLength);
+                    } else {
+                        spansBuilder.add(Collections.emptyList(), logSegmentLength + fullLineLength);
+                    }
+                    logLevelForCurrentSegment = null;
+                    insideJson = false;
+                    logSegmentLength = 0;
+                    numSegmentsClosed++;
                 } else {
-                    logSegmentLength += line.length() + 1;
-
-                    for (String logLevel : LOG_LEVEL) {
-                        if (line.contains(logLevel)) {
-                            segmentLevel = logLevel;
-                            break;
+                    if (insideJson) {
+                        logSegmentLength += fullLineLength;
+                        if (logLevelForCurrentSegment == null) {
+                            logLevelForCurrentSegment = determineLogLevelForSegment(line);
                         }
+                    } else {
+                        spansBuilder.add(Collections.emptyList(), fullLineLength);
                     }
                 }
+                numLines++;
             }
+            log.debug("file contains {} lines, with {} numSegmentsOpened and {}  numSegmentsClosed closed", numLines, numSegmentsOpened,
+                    numSegmentsClosed);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         StyleSpans<Collection<String>> styleSpans = spansBuilder.create();
 
-        log.debug("file contains {} lines, {} spans calculated", numLines, styleSpans.length());
-
         return styleSpans;
     }
 
 
-    static StyleSpans<Collection<String>> highlightRegularFile(String text) {
+    private static String determineLogLevelForSegment(String line) {
+        for (String logLevel : LOG_LEVEL) {
+            if (line.contains(logLevel)) {
+                return logLevel;
+            }
+        }
+        return null;
+    }
+
+
+    static StyleSpans<Collection<String>> highlightLogLevelRegularFile(String text) {
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
         int numLines = 0;

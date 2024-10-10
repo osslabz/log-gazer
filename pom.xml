@@ -17,7 +17,7 @@
         <javafx.version>22.0.2</javafx.version>
         <richtextfx.version>0.11.3</richtextfx.version>
         <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
-        <jpackage.maven.plugin.version>1.6.4</jpackage.maven.plugin.version>
+        <jpackage.maven.plugin.version>1.6.5</jpackage.maven.plugin.version>
     </properties>
 
     <dependencies>
@@ -41,13 +41,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.17.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.34</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>

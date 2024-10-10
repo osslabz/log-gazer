@@ -17,17 +17,19 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import lombok.extern.slf4j.Slf4j;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Taskbar;
 import java.awt.Toolkit;
@@ -40,9 +42,9 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Slf4j
 public class LogGazerApp extends Application {
 
+    public static final Logger log = LoggerFactory.getLogger(LogGazerApp.class);
     private static final String LOG_GAZER = "Log Gazer";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -116,6 +118,8 @@ public class LogGazerApp extends Application {
 
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        // getParameters().getUnnamed()
     }
 
 
@@ -271,9 +275,14 @@ public class LogGazerApp extends Application {
             VBox.setVgrow(scrollPane, Priority.ALWAYS);
             VBox contentBox = new VBox(scrollPane);
             contentBox.setFillWidth(true);
-            TouchpadScrollHandler touchpadScrollHandler = new TouchpadScrollHandler();
-            contentBox.setOnScroll(touchpadScrollHandler::handleScrollEvent);
 
+            scrollPane.addEventFilter(ScrollEvent.SCROLL, scrollEvent -> {
+                log.trace("scrollEvent={}", scrollEvent);
+                scrollPane.scrollYBy(scrollEvent.getDeltaY() * -1);
+                //   scrollPane.scrollXBy(scrollEvent.getDeltaX());
+
+                scrollEvent.consume();
+            });
 
             Tab tab = new Tab(file.getName(), contentBox);
 
@@ -287,7 +296,7 @@ public class LogGazerApp extends Application {
 
         loadTask.setOnFailed(event -> {
             String message = event.getSource().getException().getMessage();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load file: %s. Error: %s." .formatted(file.getName(), message));
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load file: %s. Error: %s.".formatted(file.getName(), message));
             alert.showAndWait();
         });
 

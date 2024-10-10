@@ -3,15 +3,17 @@ package net.osslabz.loggazer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 
-@Slf4j
+
 public class JsonUtils {
 
+    public static final Logger log = LoggerFactory.getLogger(JsonUtils.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
     static boolean textMightBeJson(String text) {
