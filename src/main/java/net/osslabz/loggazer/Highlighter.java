@@ -1,6 +1,5 @@
 package net.osslabz.loggazer;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.slf4j.Logger;
@@ -79,7 +78,7 @@ public class Highlighter {
                     if (insideJson) {
                         logSegmentLength += fullLineLength;
                         if (logLevelForCurrentSegment == null) {
-                            logLevelForCurrentSegment = determineLogLevelForSegment(line);
+                            logLevelForCurrentSegment = determineLogLevelForLine(line);
                         }
                     } else {
                         spansBuilder.add(Collections.emptyList(), fullLineLength);
@@ -94,13 +93,11 @@ public class Highlighter {
             e.printStackTrace();
         }
 
-        StyleSpans<Collection<String>> styleSpans = spansBuilder.create();
-
-        return styleSpans;
+        return spansBuilder.create();
     }
 
 
-    private static String determineLogLevelForSegment(String line) {
+    private static String determineLogLevelForLine(String line) {
         for (String logLevel : LOG_LEVEL) {
             if (line.contains(logLevel)) {
                 return logLevel;
@@ -118,38 +115,29 @@ public class Highlighter {
         try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
 
             String lastLogLevel = null;
-
             String line = null;
+
             while ((line = reader.readLine()) != null) {
                 numLines++;
 
-                boolean matchedLine = false;
-
                 List<String> styles = new ArrayList<>(2);
 
-                for (String logLevel : LOG_LEVEL) {
-                    if (line.contains(logLevel)) {
-                        styles.add(logLevel.toLowerCase());
-                        lastLogLevel = logLevel;
-                        matchedLine = true;
-                        break;
-                    }
-                }
-                if (!matchedLine) {
+                String logLevel = determineLogLevelForLine(line);
+                if (logLevel != null) {
+                    styles.add(logLevel.toLowerCase());
+                    lastLogLevel = logLevel;
+                } else if (lastLogLevel != null) {
                     log.debug("No log level found on line {}, using previous level {}", numLines, lastLogLevel);
                     styles.add(lastLogLevel.toLowerCase());
+                } else {
+                    log.trace("No log level found on line {} and no previous logLevel set, no highlighting", numLines);
                 }
-
                 spansBuilder.add(styles, line.length() + 1);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        StyleSpans<Collection<String>> styleSpans = spansBuilder.create();
-
-        log.debug("file contains {} lines, {} spans calculated", numLines, styleSpans.length());
-
-        return styleSpans;
+        return spansBuilder.create();
     }
 }
