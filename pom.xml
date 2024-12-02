@@ -15,7 +15,7 @@
         <mainClass>net.osslabz.loggazer.LogGazerApp</mainClass>
 
         <javafx.version>22.0.2</javafx.version>
-        <richtextfx.version>0.11.3</richtextfx.version>
+        <richtextfx.version>0.11.4</richtextfx.version>
         <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
         <jpackage.maven.plugin.version>1.6.5</jpackage.maven.plugin.version>
     </properties>
