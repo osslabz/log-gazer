@@ -1,35 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.osslabz</groupId>
     <artifactId>log-gazer</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>21</maven.compiler.release>
+        <osslabz.encoding>UTF-8</osslabz.encoding>
+        <osslabz.java.version>21</osslabz.java.version>
+
+        <project.build.sourceEncoding>${osslabz.encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${osslabz.encoding}</project.reporting.outputEncoding>
+
+        <project.build.outputTimestamp>2024-11-25T13:11:23Z</project.build.outputTimestamp>
+        <maven.compiler.release>${osslabz.java.version}</maven.compiler.release>
 
         <mainClass>net.osslabz.loggazer.LogGazerApp</mainClass>
 
-        <javafx.version>22.0.2</javafx.version>
-        <richtextfx.version>0.11.4</richtextfx.version>
-        <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
         <jpackage.maven.plugin.version>1.6.5</jpackage.maven.plugin.version>
     </properties>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Raphael Vullriede</name>
+            <email>raphael@osslabz.net</email>
+            <organization>osslabz.net</organization>
+            <organizationUrl>https://www.osslabz.net</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/osslabz/log-gazer.git</connection>
+        <developerConnection>scm:git:https://github.com/osslabz/log-gazer.git</developerConnection>
+        <url>https://github.com/osslabz/log-gazer</url>
+        <tag>main</tag>
+    </scm>
 
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>${javafx.version}</version>
+            <version>23.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.fxmisc.richtext</groupId>
             <artifactId>richtextfx</artifactId>
-            <version>${richtextfx.version}</version>
+            <version>0.11.4</version>
         </dependency>
 
         <dependency>
@@ -57,6 +83,72 @@
     </dependencies>
 
     <profiles>
+        <profile>
+            <id>osslabz-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>3.1.1</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>nl.basjes.maven.release</groupId>
+                                <artifactId>conventional-commits-version-policy</artifactId>
+                                <version>1.0.7</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <!-- settings from the maven-release-plugin itself -->
+                            <autoVersionSubmodules>true</autoVersionSubmodules>
+                            <useReleaseProfile>false</useReleaseProfile>
+                            <releaseProfiles>codelabz-release</releaseProfiles>
+                            <tagNameFormat>@{project.version}</tagNameFormat>
+                            <scmCommentPrefix>[release]</scmCommentPrefix>
+                            <scmReleaseCommitComment>@{prefix} set version to @{releaseLabel}</scmReleaseCommitComment>
+                            <scmDevelopmentCommitComment>@{prefix} prepare for next development iteration</scmDevelopmentCommitComment>
+
+                            <!-- settings from the conventional-commits-version-policy -->
+                            <projectVersionPolicyId>ConventionalCommitsVersionPolicy</projectVersionPolicyId>
+                            <projectVersionPolicyConfig>
+                                <versionTag>([0-9]+\.[0-9]+\.[0-9]+)$</versionTag>
+                            </projectVersionPolicyConfig>
+                            <goals>deploy</goals>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.3.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.11.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <doclint>none</doclint>
+                                    <failOnError>false</failOnError>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>native-graalvm-default</id>
             <build>
@@ -209,7 +301,7 @@
 
                                         <move todir="${project.build.directory}/dist">
                                             <fileset dir="${project.build.directory}/dist"/>
-                                            <mapper type="regexp" from="^(.*)\.(.*)$" to="\1-${os.classifier}.\2" />
+                                            <mapper type="regexp" from="^(.*)\.(.*)$" to="\1-${os.classifier}.\2"/>
                                         </move>
                                     </target>
                                 </configuration>
@@ -238,7 +330,7 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>${javafx.maven.plugin.version}</version>
+                <version>0.0.8</version>
                 <configuration>
                     <mainClass>${mainClass}</mainClass>
                 </configuration>
@@ -256,7 +348,7 @@
                         <configuration>
                             <transformers>
                                 <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>${mainClass}</mainClass>
                                 </transformer>
                             </transformers>
@@ -278,4 +370,20 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/osslabz</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/osslabz/log-gazer</url>
+        </repository>
+    </distributionManagement>
 </project>

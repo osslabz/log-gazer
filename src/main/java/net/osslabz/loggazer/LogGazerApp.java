@@ -1,17 +1,29 @@
 package net.osslabz.loggazer;
 
+import java.awt.Taskbar;
+import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javafx.application.Application;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -24,6 +36,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
@@ -31,31 +44,38 @@ import org.fxmisc.richtext.model.StyleSpans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Taskbar;
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class LogGazerApp extends Application {
 
     public static final Logger log = LoggerFactory.getLogger(LogGazerApp.class);
+
     private static final String LOG_GAZER = "Log Gazer";
+
+    public static final String SEARCH_QUERY_PLACEHOLDER = "Search...";
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private final Map<String, TabContent> tabContent = new HashMap<>();
+    private final Map<String, TabContent> tabContentList = new HashMap<>();
 
     private TabPane tabPane;
+
     private Button buttonMarkLogLevel;
+
     private Button buttonFormatJson;
+
+    private TextField searchField;
+
+    private Button searchButton;
+
+    private Button prevMatchButton;
+
+    private Button nextMatchButton;
+
+    private Label matchCountLabel;
 
 
     public static void main(String[] args) {
+
         launch(args);
     }
 
@@ -78,7 +98,6 @@ public class LogGazerApp extends Application {
         WindowUtils.resizeAndPosition(primaryStage);
         primaryStage.setOnCloseRequest((WindowEvent event) -> WindowUtils.saveWindowState(primaryStage));
 
-
         Image appIconImage = new Image(LogGazerApp.class.getResourceAsStream("/icon/icon-256.png"));
 
         primaryStage.getIcons().add(appIconImage);
@@ -89,14 +108,7 @@ public class LogGazerApp extends Application {
         root.setCenter(this.tabPane);
 
         MenuBar menuBar = createMenuBar();
-        ToolBar toolBar = new ToolBar();
-
-        this.buttonMarkLogLevel = createAndCofigureMarkLogLevelButton();
-        this.buttonFormatJson = createButtonFormatJson();
-
-        toolBar.getItems().add(buttonFormatJson);
-        toolBar.getItems().add(new Separator());
-        toolBar.getItems().add(buttonMarkLogLevel);
+        ToolBar toolBar = createToolBar();
 
         VBox topContainer = new VBox(menuBar, toolBar);
         root.setTop(topContainer);
@@ -108,11 +120,10 @@ public class LogGazerApp extends Application {
             if (searchKeyCombination.match(event)) {
                 Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
                 if (selectedTab != null) {
-                    showSearchDialog();
+                    this.searchField.requestFocus();
                 }
             }
         });
-
 
         scene.getStylesheets().add(LogGazerApp.class.getResource("/lg.css").toExternalForm());
 
@@ -123,47 +134,157 @@ public class LogGazerApp extends Application {
     }
 
 
-    private void showSearchDialog() {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Search");
-        dialog.setHeaderText(null);
-        dialog.setContentText("Enter search term:");
+    private ToolBar createToolBar() {
 
-        dialog.showAndWait().ifPresent(this::searchText);
+        ToolBar toolBar = new ToolBar();
+
+        this.buttonMarkLogLevel = createAndCofigureMarkLogLevelButton();
+        this.buttonFormatJson = createButtonFormatJson();
+
+        this.searchField = new TextField();
+        searchField.setMinWidth(20);
+        searchField.setOnAction(e -> performSearch());
+        searchField.setOnMouseClicked(event -> {
+            if (SEARCH_QUERY_PLACEHOLDER.equals(searchField.getText())) {
+                searchField.setText("");
+            }
+        });
+        searchField.setDisable(true);
+
+        this.searchButton = new Button("Search");
+        searchButton.setOnAction(e -> performSearch());
+        searchButton.setDisable(true);
+
+        this.prevMatchButton = new Button("◀ Previous");
+        prevMatchButton.setOnAction(e -> navigateToPreviousMatch());
+        prevMatchButton.setDisable(true);
+
+        this.nextMatchButton = new Button("Next ▶");
+        nextMatchButton.setOnAction(e -> navigateToNextMatch());
+        nextMatchButton.setDisable(true);
+
+        this.matchCountLabel = new Label();
+
+        resetSearch();
+
+        toolBar.getItems().addAll(
+            this.buttonFormatJson,
+            new Separator(),
+            this.buttonMarkLogLevel,
+            new Separator(),
+            this.searchField,
+            this.searchButton,
+            this.prevMatchButton,
+            this.nextMatchButton,
+            this.matchCountLabel
+
+        );
+
+        return toolBar;
     }
 
 
-    private void searchText(String searchTerm) {
+    private void performSearch() {
 
-        Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
-        if (selectedTab == null) {
+        TabContent currentTabContent = this.getCurrentTabContent();
+        if (currentTabContent == null) {
             return;
         }
 
-        TabContent selectedTabContent = this.tabContent.get(selectedTab.getId());
+        CodeArea codeArea = currentTabContent.getCodeArea();
 
-        CodeArea codeArea = selectedTabContent.getCodeArea();
-        String text = codeArea.getText().toLowerCase();
+        String searchTerm = searchField.getText();
+        if (searchTerm.isEmpty()) {
+            return;
+        }
 
-        int index = text.indexOf(searchTerm.toLowerCase());
-        if (index != -1) {
-            int caretPosition = index + searchTerm.length();
-            codeArea.moveTo(caretPosition);
-            codeArea.selectRange(index, caretPosition);
+        List<Integer> matchPositions = SearchUtils.findAllMatches(codeArea, searchTerm);
+
+        currentTabContent.updateSearch(searchTerm, matchPositions);
+
+        if (matchPositions.isEmpty()) {
+            codeArea.selectRange(codeArea.getAnchor(), codeArea.getAnchor());
+            matchCountLabel.setText("No matches found");
+            prevMatchButton.setDisable(true);
+            nextMatchButton.setDisable(true);
+            return;
+        }
+
+        navigateToCurrentMatch();
+
+        // Enable/disable buttons based on match count
+        prevMatchButton.setDisable(matchPositions.size() <= 1);
+        nextMatchButton.setDisable(matchPositions.size() <= 1);
+    }
+
+
+    private void navigateToCurrentMatch() {
+
+        TabContent tabContent = this.getCurrentTabContent();
+        if (tabContent == null || tabContent.getSearchData().getCurrentMatchIndex() == -1) {
+            resetSearch();
+            return;
+        }
+
+        int currentMatchIndex = tabContent.getSearchData().getCurrentMatchIndex();
+        int numMatches = tabContent.getSearchData().numMatches();
+
+        searchField.setText(StringUtils.isNotBlank(tabContent.getSearchData().getQuery()) ? tabContent.getSearchData().getQuery() : SEARCH_QUERY_PLACEHOLDER);
+        matchCountLabel.setText(String.format("%d of %d matches", currentMatchIndex + 1, numMatches));
+
+        if (currentMatchIndex >= 0 && currentMatchIndex < numMatches) {
+            int position = tabContent.getSearchData().getCurrentMatchPosition();
+            CodeArea codeArea = tabContent.getCodeArea();
+            codeArea.moveTo(position);
+            codeArea.selectRange(position, position + tabContent.getSearchData().getQuery().length());
             codeArea.requestFollowCaret();
             codeArea.requestFocus();
-
-        } else {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Search Result");
-            alert.setHeaderText(null);
-            alert.setContentText("Text not found.");
-            alert.showAndWait();
         }
+    }
+
+
+    private void resetSearch() {
+
+        searchField.setText(SEARCH_QUERY_PLACEHOLDER);
+        matchCountLabel.setText("");
+    }
+
+
+    private void navigateToNextMatch() {
+
+        TabContent currentTabContent = this.getCurrentTabContent();
+        if (currentTabContent == null || currentTabContent.getSearchData().getCurrentMatchIndex() == -1) {
+            return;
+        }
+        currentTabContent.getSearchData().moveToNextMatch();
+        navigateToCurrentMatch();
+    }
+
+
+    private void navigateToPreviousMatch() {
+
+        TabContent currentTabContent = this.getCurrentTabContent();
+        if (currentTabContent == null || currentTabContent.getSearchData().getCurrentMatchIndex() == -1) {
+            return;
+        }
+        currentTabContent.getSearchData().moveToPrevMatch();
+        navigateToCurrentMatch();
+    }
+
+
+    private TabContent getCurrentTabContent() {
+
+        Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+        if (selectedTab == null) {
+            return null;
+        }
+
+        return this.tabContentList.get(selectedTab.getId());
     }
 
 
     private Button createButtonFormatJson() {
+
         Button button = new Button("Format JSON");
         button.setDisable(true);
 
@@ -173,7 +294,7 @@ public class LogGazerApp extends Application {
                 return;
             }
 
-            TabContent selectedTabContent = this.tabContent.get(selectedTab.getId());
+            TabContent selectedTabContent = this.tabContentList.get(selectedTab.getId());
 
             CodeArea codeArea = selectedTabContent.getCodeArea();
             String originalContent = selectedTabContent.getOriginalContent();
@@ -191,6 +312,7 @@ public class LogGazerApp extends Application {
 
 
     private Button createAndCofigureMarkLogLevelButton() {
+
         Button button = new Button("Mark Log Level");
         button.setDisable(true);
 
@@ -200,7 +322,7 @@ public class LogGazerApp extends Application {
                 return;
             }
 
-            CodeArea codeArea = tabContent.get(selectedTab.getId()).getCodeArea();
+            CodeArea codeArea = tabContentList.get(selectedTab.getId()).getCodeArea();
 
             String currentText = codeArea.getText();
             StyleSpans<Collection<String>> currentStyleSpans = codeArea.getStyleSpans(0, currentText.length());
@@ -216,16 +338,18 @@ public class LogGazerApp extends Application {
 
 
     private TabPane createAndConfigureTabPane(Stage primaryStage) {
+
         TabPane tabPane = new TabPane();
         tabPane.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
 
             Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
             if (selectedTab != null) {
 
-                TabContent currentTabContent = this.tabContent.get(selectedTab.getId());
+                TabContent currentTabContent = this.tabContentList.get(selectedTab.getId());
                 String currentText = currentTabContent.getCodeArea().getText();
 
-                this.buttonMarkLogLevel.setDisable(false);
+                enableButtons(true);
+                navigateToCurrentMatch();
 
                 this.buttonFormatJson.setDisable(!JsonUtils.textMightBeJson(currentText));
 
@@ -238,24 +362,38 @@ public class LogGazerApp extends Application {
                     primaryStage.setTitle(LOG_GAZER + " - " + nv.getText());
                 }
             } else {
-                this.buttonFormatJson.setDisable(true);
-                this.buttonMarkLogLevel.setDisable(true);
+                enableButtons(false);
+                resetSearch();
             }
         });
         return tabPane;
     }
 
 
+    private void enableButtons(boolean enable) {
+
+        this.buttonMarkLogLevel.setDisable(!enable);
+        this.buttonFormatJson.setDisable(!enable);
+        this.searchField.setDisable(!enable);
+        this.searchButton.setDisable(!enable);
+        this.prevMatchButton.setDisable(!enable);
+        this.nextMatchButton.setDisable(!enable);
+    }
+
+
     @Override
     public void stop() {
+
         executor.shutdown();
     }
 
 
     private void openFileInNewTab(File file) {
+
         Task<String> loadTask = new Task<>() {
             @Override
             protected String call() throws Exception {
+
                 return FileUtils.loadFileContent(file);
             }
         };
@@ -268,7 +406,6 @@ public class LogGazerApp extends Application {
             codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
             TabContent newTabContent = new TabContent(file, rawContent, codeArea);
-
 
             VirtualizedScrollPane<CodeArea> scrollPane = new VirtualizedScrollPane<>(codeArea);
 
@@ -286,9 +423,8 @@ public class LogGazerApp extends Application {
 
             Tab tab = new Tab(file.getName(), contentBox);
 
-
             tab.setId(UUID.randomUUID() + "_" + file.getName());
-            this.tabContent.put(tab.getId(), newTabContent);
+            this.tabContentList.put(tab.getId(), newTabContent);
             this.tabPane.getTabs().add(tab);
 
             this.tabPane.getSelectionModel().select(tab);
@@ -305,6 +441,7 @@ public class LogGazerApp extends Application {
 
 
     private MenuBar createMenuBar() {
+
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("File");
         MenuItem openMenuItem = new MenuItem("Open");
@@ -317,6 +454,7 @@ public class LogGazerApp extends Application {
 
 
     private void openFile() {
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
 /*
@@ -324,7 +462,7 @@ public class LogGazerApp extends Application {
 
                 new FileChooser.ExtensionFilter("Compressed Files", "*.gz", "*.zip", "*.tar.gz")
 */
-                new FileChooser.ExtensionFilter("Files", "*.*")
+            new FileChooser.ExtensionFilter("Files", "*.*")
 
         );
         File file = fileChooser.showOpenDialog(null);
