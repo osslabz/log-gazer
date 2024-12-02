@@ -33,22 +33,33 @@ jobs:
           cache: 'maven'
 
       - name: maven-build-verify
-        run: mvn --batch-mode -Posslabz-release -Pnative-jpackage clean release:clean release:prepare release:perform
+        run: mvn --batch-mode -Posslabz-release -Pnative-jpackage clean deploy
 
       - name: configure-git-user
         uses: qoomon/actions--setup-git@v1
         with:
           user: bot
 
-      - name: get-latest-tag
-        id: get-latest-tag
-        uses: WyriHaximus/github-action-get-previous-tag@v1
+      - name: Extract version from pom.xml file
+        id: version-extractor
+        uses: dostonhamrakulov/maven-artifact-version-extractor@v1.0
+        with:
+          file_path: ${{ github.workspace }}/pom.xml
+
+      - name: Get the output version
+        run: echo "The found version ${{ steps.version-extractor.outputs.version }}"
+
+      - name: Tag snapshot
+        uses: tvdias/github-tagger@v0.0.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.version-extractor.outputs.version }}
 
       - name: create-release-notes
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          tag_name: ${{ steps.get-latest-tag.outputs.tag }}
+          tag_name: ${{ steps.version-extractor.outputs.version }}
           files: target/dist/*
 
       - name: merge-main-to-dev
