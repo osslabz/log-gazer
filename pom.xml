@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.osslabz</groupId>
     <artifactId>log-gazer</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1</version>
 
     <properties>
         <osslabz.encoding>UTF-8</osslabz.encoding>
@@ -14,7 +13,7 @@
         <project.build.sourceEncoding>${osslabz.encoding}</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${osslabz.encoding}</project.reporting.outputEncoding>
 
-        <project.build.outputTimestamp>2024-12-02T19:47:18Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2024-12-02T20:19:25Z</project.build.outputTimestamp>
         <maven.compiler.release>${osslabz.java.version}</maven.compiler.release>
 
         <mainClass>net.osslabz.loggazer.AppStarter</mainClass>
@@ -42,7 +41,7 @@
         <connection>scm:git:https://github.com/osslabz/log-gazer.git</connection>
         <developerConnection>scm:git:https://github.com/osslabz/log-gazer.git</developerConnection>
         <url>https://github.com/osslabz/log-gazer</url>
-        <tag>1.1.0</tag>
+        <tag>1.1.1</tag>
     </scm>
 
     <dependencies>
@@ -260,17 +259,17 @@
                                 <configuration>
                                     <target>
                                         <!-- Define Properties for OS and Architecture -->
-                                        <property name="os.classifier" value="${os.detected.classifier}"/>
+                                        <property name="os.classifier" value="${os.detected.classifier}" />
 
                                         <!-- Rename all files in /target/dist -->
                                         <fileset dir="${project.build.directory}/dist">
                                             <!-- Include all files in the directory -->
-                                            <include name="*.*"/>
+                                            <include name="*.*" />
                                         </fileset>
 
                                         <move todir="${project.build.directory}/dist">
-                                            <fileset dir="${project.build.directory}/dist"/>
-                                            <mapper type="regexp" from="^(.*)\.(.*)$" to="\1-${os.classifier}.\2"/>
+                                            <fileset dir="${project.build.directory}/dist" />
+                                            <mapper type="regexp" from="^(.*)\.(.*)$" to="\1-${os.classifier}.\2" />
                                         </move>
                                     </target>
                                 </configuration>
