@@ -33,7 +33,7 @@ jobs:
           cache: 'maven'
 
       - name: maven-build-verify
-        run: mvn --batch-mode -Pnative-jpackage clean verify
+        run: mvn --batch-mode -Posslabz-release,native-jpackage clean verify
 
       - name: configure-git-user
         uses: qoomon/actions--setup-git@v1
