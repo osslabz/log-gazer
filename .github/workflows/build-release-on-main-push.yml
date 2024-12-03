@@ -24,7 +24,7 @@ jobs:
       - id: checkout
         uses: actions/checkout@v4
         with:
-          ref: main
+          fetch-tags: true
 
       - id: setup-jdk
         uses: actions/setup-java@v4
@@ -48,8 +48,6 @@ jobs:
 
       - id: get-latest-tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
-        with:
-          workingDirectory: ${{ github.workspace }}
 
       - name: tag-version
         if: ${{ steps.get-version-from-pom.outputs.version != steps.get-latest-tag.outputs.tag}}
