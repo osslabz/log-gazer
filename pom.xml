@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.osslabz</groupId>
     <artifactId>log-gazer</artifactId>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
 
     <properties>
         <osslabz.encoding>UTF-8</osslabz.encoding>
@@ -16,7 +17,7 @@
         <project.build.outputTimestamp>2024-12-02T20:20:06Z</project.build.outputTimestamp>
         <maven.compiler.release>${osslabz.java.version}</maven.compiler.release>
 
-        <mainClass>net.osslabz.loggazer.AppStarter</mainClass>
+        <mainClass>net.osslabz.loggazer.LogGazerApp</mainClass>
 
         <jpackage.maven.plugin.version>1.6.5</jpackage.maven.plugin.version>
     </properties>
@@ -104,7 +105,8 @@
                             <tagNameFormat>@{project.version}</tagNameFormat>
                             <scmCommentPrefix>[release]</scmCommentPrefix>
                             <scmReleaseCommitComment>@{prefix} set version to @{releaseLabel}</scmReleaseCommitComment>
-                            <scmDevelopmentCommitComment>@{prefix} prepare for next development iteration</scmDevelopmentCommitComment>
+                            <scmDevelopmentCommitComment>@{prefix} prepare for next development iteration
+                            </scmDevelopmentCommitComment>
 
                             <!-- settings from the conventional-commits-version-policy -->
                             <projectVersionPolicyId>ConventionalCommitsVersionPolicy</projectVersionPolicyId>
@@ -122,6 +124,28 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.1</version>
+                        <executions>
+                            <execution>
+                                <id>java-agent</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <workingDirectory>${project.build.directory}</workingDirectory>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath/>
+                                        <argument>${mainClass}</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
                         <version>0.10.4</version>
@@ -137,22 +161,13 @@
                         </executions>
                         <configuration>
                             <mainClass>${mainClass}</mainClass>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>native-graalvm-gluon</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.gluonhq</groupId>
-                        <artifactId>gluonfx-maven-plugin</artifactId>
-                        <version>1.0.24</version>
-                        <configuration>
-                            <graalvmHome>/Users/ravu/.sdkman/candidates/java/22.1.0.1.r17-gln</graalvmHome>
-                            <mainClass>${mainClass}</mainClass>
+                            <fallback>false</fallback>
+                            <agent>
+                                <enabled>true</enabled>
+                            </agent>
+                            <jvmArgs>
+                                <arg>-Djava.awt.headless=false</arg>
+                            </jvmArgs>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -168,13 +183,25 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.panteleyev</groupId>
-                        <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>${jpackage.maven.plugin.version}</version>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.7.1</version>
                         <configuration>
-                            <type>MSI</type>
-                            <icon>${project.build.outputDirectory}/icon/icon-256.png</icon>
-                            <winMenu>true</winMenu>
+                            <finalName>${project.artifactId}-${project.version}-${os.detected.classifier}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <inlineDescriptors>
+                                <inlineDescriptor>
+                                    <id>compress</id>
+                                    <formats>
+                                        <format>zip</format>
+                                    </formats>
+                                    <files>
+                                        <file>
+                                            <source>${project.build.directory}/log-gazer.exe</source>
+                                            <outputDirectory></outputDirectory>
+                                        </file>
+                                    </files>
+                                </inlineDescriptor>
+                            </inlineDescriptors>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -190,12 +217,25 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.panteleyev</groupId>
-                        <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>${jpackage.maven.plugin.version}</version>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.7.1</version>
                         <configuration>
-                            <type>DEB</type>
-                            <icon>${project.build.outputDirectory}/icon/icon-256.png</icon>
+                            <finalName>${project.artifactId}-${project.version}-${os.detected.classifier}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <inlineDescriptors>
+                                <inlineDescriptor>
+                                    <id>compress</id>
+                                    <formats>
+                                        <format>tar.gz</format>
+                                    </formats>
+                                    <files>
+                                        <file>
+                                            <source>${project.build.directory}/log-gazer</source>
+                                            <outputDirectory></outputDirectory>
+                                        </file>
+                                    </files>
+                                </inlineDescriptor>
+                            </inlineDescriptors>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -211,70 +251,26 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.panteleyev</groupId>
-                        <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>${jpackage.maven.plugin.version}</version>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.7.1</version>
                         <configuration>
-                            <type>DMG</type>
-                            <icon>${project.build.outputDirectory}/icon/log-gazer.icns</icon>
+                            <finalName>${project.artifactId}-${project.version}-${os.detected.classifier}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <inlineDescriptors>
+                                <inlineDescriptor>
+                                    <id>compress</id>
+                                    <formats>
+                                        <format>tar.gz</format>
+                                    </formats>
+                                    <files>
+                                        <file>
+                                            <source>${project.build.directory}/log-gazer</source>
+                                            <outputDirectory></outputDirectory>
+                                        </file>
+                                    </files>
+                                </inlineDescriptor>
+                            </inlineDescriptors>
                         </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>native-jpackage</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.panteleyev</groupId>
-                        <artifactId>jpackage-maven-plugin</artifactId>
-                        <version>${jpackage.maven.plugin.version}</version>
-                        <configuration>
-                            <destination>${project.build.directory}/dist</destination>
-                            <input>${project.build.directory}</input>
-                            <mainJar>${project.artifactId}-${project.version}.jar</mainJar>
-                            <mainClass>${mainClass}</mainClass>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jpackage</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>rename-artifact</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <!-- Define Properties for OS and Architecture -->
-                                        <property name="os.classifier" value="${os.detected.classifier}" />
-
-                                        <!-- Rename all files in /target/dist -->
-                                        <fileset dir="${project.build.directory}/dist">
-                                            <!-- Include all files in the directory -->
-                                            <include name="*.*" />
-                                        </fileset>
-
-                                        <move todir="${project.build.directory}/dist">
-                                            <fileset dir="${project.build.directory}/dist" />
-                                            <mapper type="regexp" from="^(.*)\.(.*)$" to="\1-${os.classifier}.\2" />
-                                        </move>
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -315,11 +311,11 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>${mainClass}</mainClass>
                                 </transformer>
                             </transformers>
-                            <!-- <shadedClassifierName>${os.detected.classifier}</shadedClassifierName>-->
                         </configuration>
                     </execution>
                 </executions>
@@ -329,7 +325,6 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.4.2</version>
                 <configuration>
-                    <!--     <classifier>${os.detected.classifier}</classifier>-->
                     <archive>
                         <manifest>
                             <mainClass>${mainClass}</mainClass>

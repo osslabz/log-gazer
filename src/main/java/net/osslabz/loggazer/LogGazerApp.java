@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import javafx.application.Application;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
@@ -84,13 +85,19 @@ public class LogGazerApp extends Application {
     public void start(Stage primaryStage) {
 
         if (Taskbar.isTaskbarSupported()) {
+            log.debug("Taskbar is supported");
             var taskbar = Taskbar.getTaskbar();
 
             if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+                log.debug("Taskbar.Feature.ICON_IMAGE is supported");
                 final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
                 var dockIcon = defaultToolkit.getImage(getClass().getResource("/icon/icon-256.png"));
                 taskbar.setIconImage(dockIcon);
+            } else {
+                log.debug("Taskbar.Feature.ICON_IMAGE is NOT supported");
             }
+        } else {
+            log.debug("Taskbar is NOT supported");
         }
 
         primaryStage.setTitle(LOG_GAZER);
@@ -168,15 +175,15 @@ public class LogGazerApp extends Application {
         resetSearch();
 
         toolBar.getItems().addAll(
-            this.buttonFormatJson,
-            new Separator(),
-            this.buttonMarkLogLevel,
-            new Separator(),
-            this.searchField,
-            this.searchButton,
-            this.prevMatchButton,
-            this.nextMatchButton,
-            this.matchCountLabel
+                this.buttonFormatJson,
+                new Separator(),
+                this.buttonMarkLogLevel,
+                new Separator(),
+                this.searchField,
+                this.searchButton,
+                this.prevMatchButton,
+                this.nextMatchButton,
+                this.matchCountLabel
 
         );
 
@@ -229,7 +236,8 @@ public class LogGazerApp extends Application {
         int currentMatchIndex = tabContent.getSearchData().getCurrentMatchIndex();
         int numMatches = tabContent.getSearchData().numMatches();
 
-        searchField.setText(StringUtils.isNotBlank(tabContent.getSearchData().getQuery()) ? tabContent.getSearchData().getQuery() : SEARCH_QUERY_PLACEHOLDER);
+        searchField.setText(StringUtils.isNotBlank(tabContent.getSearchData().getQuery()) ? tabContent.getSearchData().getQuery() :
+                SEARCH_QUERY_PLACEHOLDER);
         matchCountLabel.setText(String.format("%d of %d matches", currentMatchIndex + 1, numMatches));
 
         if (currentMatchIndex >= 0 && currentMatchIndex < numMatches) {
@@ -462,7 +470,7 @@ public class LogGazerApp extends Application {
 
                 new FileChooser.ExtensionFilter("Compressed Files", "*.gz", "*.zip", "*.tar.gz")
 */
-            new FileChooser.ExtensionFilter("Files", "*.*")
+                new FileChooser.ExtensionFilter("Files", "*.*")
 
         );
         File file = fileChooser.showOpenDialog(null);
