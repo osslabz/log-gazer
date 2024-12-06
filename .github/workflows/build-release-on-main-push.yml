@@ -16,7 +16,7 @@ jobs:
     strategy:
       max-parallel: 1 # otherwise the release upload will fail
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-13, macos-14 ]
+        os: [ macos-14 ] # ubuntu-latest, windows-latest, macos-13,
 
     runs-on: ${{ matrix.os }}
 
@@ -28,10 +28,10 @@ jobs:
           fetch-tags: true
 
       - id: setup-graalvm
-        uses: graalvm/setup-graalvm@v1.2
+        uses: graalvm/setup-graalvm@v1
         with:
           distribution: 'liberica'
-          java-version: '23'
+          java-version: '21'
           java-package: 'jdk+fx'
           cache: 'maven'
 
