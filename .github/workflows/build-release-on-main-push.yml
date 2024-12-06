@@ -16,7 +16,7 @@ jobs:
     strategy:
       max-parallel: 1 # otherwise the release upload will fail
       matrix:
-        os: [ macos-14 ] # ubuntu-latest, windows-latest, macos-13,
+        os: [ macos-14, macos-13, windows-latest, ubuntu] # ubuntu-latest, windows-latest, macos-13,
 
     runs-on: ${{ matrix.os }}
 
@@ -43,7 +43,7 @@ jobs:
           native-image --version
 
       - id: maven-build-verify
-        run: mvn --batch-mode -Pnative-graalvm-default clean package
+        run: mvn --batch-mode -Pnative-graalvm-default clean package assembly:single
 
       - id: configure-git-user
         uses: qoomon/actions--setup-git@v1
