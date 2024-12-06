@@ -70,7 +70,9 @@ jobs:
         with:
           generate_release_notes: true
           tag_name: ${{ steps.get-version-from-pom.outputs.version }}
-          files: target/dist/*
+          files: |
+            target/log-gazer*.tar.gz
+            target/log-gazer*.zip
 
       - id: merge-main-to-dev
         run: |
