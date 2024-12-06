@@ -28,7 +28,7 @@ jobs:
           fetch-tags: true
 
       - id: setup-graalvm
-        uses: graalvm/setup-graalvm@v1.2
+        uses: graalvm/setup-graalvm@v1
         with:
           distribution: 'liberica'
           java-version: '23'
