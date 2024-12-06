@@ -31,7 +31,7 @@ jobs:
         uses: graalvm/setup-graalvm@v1
         with:
           distribution: 'liberica'
-          java-version: '23'
+          java-version: '21'
           java-package: 'jdk+fx'
           cache: 'maven'
 
