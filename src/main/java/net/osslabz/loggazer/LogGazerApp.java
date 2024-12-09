@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import javafx.application.Application;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
@@ -76,6 +75,24 @@ public class LogGazerApp extends Application {
 
 
     public static void main(String[] args) {
+
+        if (args != null && args.length == 1) {
+            String singleParam = args[0];
+            if (singleParam != null) {
+                String paramLowerCase = StringUtils.stripStart(singleParam.trim().toLowerCase(), "-");
+                if (paramLowerCase.equals("version") || paramLowerCase.equals("v")) {
+                    System.out.printf(
+                        """
+                            log-gazer %s%n
+                            Copyright (C) 2024 Raphael Vullriede (raphael@osslabz.net)%n
+                            License: Apache License Version 2.0, January 2004 <https://www.apache.org/licenses/LICENSE-2.0.txt>.%n
+                            This is free software: you are free to change and redistribute it.%n
+                            There is NO WARRANTY, to the extent permitted by law.%n
+                            """, LogGazerApp.class.getPackage().getImplementationVersion());
+                    System.exit(0);
+                }
+            }
+        }
 
         launch(args);
     }
@@ -175,15 +192,15 @@ public class LogGazerApp extends Application {
         resetSearch();
 
         toolBar.getItems().addAll(
-                this.buttonFormatJson,
-                new Separator(),
-                this.buttonMarkLogLevel,
-                new Separator(),
-                this.searchField,
-                this.searchButton,
-                this.prevMatchButton,
-                this.nextMatchButton,
-                this.matchCountLabel
+            this.buttonFormatJson,
+            new Separator(),
+            this.buttonMarkLogLevel,
+            new Separator(),
+            this.searchField,
+            this.searchButton,
+            this.prevMatchButton,
+            this.nextMatchButton,
+            this.matchCountLabel
 
         );
 
@@ -237,7 +254,7 @@ public class LogGazerApp extends Application {
         int numMatches = tabContent.getSearchData().numMatches();
 
         searchField.setText(StringUtils.isNotBlank(tabContent.getSearchData().getQuery()) ? tabContent.getSearchData().getQuery() :
-                SEARCH_QUERY_PLACEHOLDER);
+            SEARCH_QUERY_PLACEHOLDER);
         matchCountLabel.setText(String.format("%d of %d matches", currentMatchIndex + 1, numMatches));
 
         if (currentMatchIndex >= 0 && currentMatchIndex < numMatches) {
@@ -470,7 +487,7 @@ public class LogGazerApp extends Application {
 
                 new FileChooser.ExtensionFilter("Compressed Files", "*.gz", "*.zip", "*.tar.gz")
 */
-                new FileChooser.ExtensionFilter("Files", "*.*")
+            new FileChooser.ExtensionFilter("Files", "*.*")
 
         );
         File file = fileChooser.showOpenDialog(null);
