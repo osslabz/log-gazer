@@ -16,7 +16,7 @@ jobs:
     strategy:
       max-parallel: 1 # otherwise the release upload will fail
       matrix:
-        os: [ macos-14, macos-13, windows-latest, ubuntu-latest ]
+        os: [ macos-14, macos-13, windows-latest, ubuntu-20.04 ]
 
     runs-on: ${{ matrix.os }}
 
