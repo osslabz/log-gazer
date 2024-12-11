@@ -16,6 +16,11 @@ import java.util.zip.ZipFile;
 
 public class FileUtils {
 
+    private FileUtils() {
+        // intentionally empty
+    }
+
+
     public static String loadFileContent(File file) throws IOException {
         if (file.getName().endsWith(".gz") || file.getName().endsWith(".tar.gz")) {
             return loadCompressedFile(file);

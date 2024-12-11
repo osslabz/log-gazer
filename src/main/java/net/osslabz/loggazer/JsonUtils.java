@@ -13,8 +13,15 @@ import java.io.StringReader;
 
 public class JsonUtils {
 
-    public static final Logger log = LoggerFactory.getLogger(JsonUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(JsonUtils.class);
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+
+
+    private JsonUtils() {
+        // intentionally empty
+    }
+
 
     static boolean textMightBeJson(String text) {
         if (lineMightBeJson(text)) {

@@ -9,6 +9,11 @@ import org.fxmisc.richtext.CodeArea;
 
 public class SearchUtils {
 
+    private SearchUtils() {
+        // intentionally empty
+    }
+
+
     public static List<Integer> findAllMatches(CodeArea codeArea, String searchTerm) {
 
         List<Integer> matchPositions = new ArrayList<>();

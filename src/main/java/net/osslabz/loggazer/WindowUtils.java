@@ -20,6 +20,11 @@ public class WindowUtils {
     private static final double DEFAULT_HEIGHT = 768;
 
 
+    private WindowUtils() {
+        // intentionally empty
+    }
+
+
     protected static void resizeAndPosition(Stage stage) {
         Platform.runLater(() -> {
 
@@ -63,6 +68,7 @@ public class WindowUtils {
         return UserPreferences.getDouble(PREFS_X, -1);
     }
 
+
     protected static boolean isWindowIsOutOfBounds(Stage stage) {
         for (Screen screen : Screen.getScreens()) {
             Rectangle2D bounds = screen.getVisualBounds();
@@ -76,6 +82,7 @@ public class WindowUtils {
         return true;
     }
 
+
     protected static void moveToPrimaryScreen(Stage stage) {
         Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
         stage.setX(bounds.getMinX() + MARGIN);
@@ -83,6 +90,7 @@ public class WindowUtils {
         stage.setWidth(DEFAULT_WIDTH);
         stage.setHeight(DEFAULT_HEIGHT);
     }
+
 
     protected static void saveWindowState(Stage stage) {
         UserPreferences.putDouble(PREFS_X, stage.getX());
