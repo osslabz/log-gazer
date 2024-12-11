@@ -16,7 +16,7 @@ jobs:
     strategy:
       max-parallel: 1 # otherwise the release upload will fail
       matrix:
-        os: [ macos-14, macos-13, windows-latest, ubuntu-latest ]
+        os: [ ubuntu-latest ] # macos-14, macos-13, windows-latest, 
 
     runs-on: ${{ matrix.os }}
 
@@ -31,7 +31,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get -y install libgl1
+          sudo apt-get -y install libgl1 libglx-mesa0
 
       - id: setup-graalvm
         uses: graalvm/setup-graalvm@v1
