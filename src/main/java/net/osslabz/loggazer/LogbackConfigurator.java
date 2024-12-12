@@ -1,5 +1,6 @@
 package net.osslabz.loggazer;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.layout.TTLLLayout;
@@ -9,6 +10,9 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.spi.ContextAwareBase;
 
+/**
+ * Programmatically configure logback to reduce startup time
+ */
 public class LogbackConfigurator extends ContextAwareBase implements Configurator {
 
     public Configurator.ExecutionStatus configure(LoggerContext loggerContext) {
@@ -30,9 +34,12 @@ public class LogbackConfigurator extends ContextAwareBase implements Configurato
         ca.start();
 
         Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
+        rootLogger.setLevel(Level.INFO);
         rootLogger.addAppender(ca);
 
-        // let the caller decide
+        Logger appLogger = loggerContext.getLogger("net.osslabz.loggazer");
+        appLogger.setLevel(Level.DEBUG);
+
         return ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY;
     }
 }
