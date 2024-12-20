@@ -55,7 +55,7 @@ public class LogGazerApp extends Application {
 
     public static final String SEARCH_QUERY_PLACEHOLDER = "Search...";
 
-    private static boolean loggingEnabled;
+    private static boolean loggingEnabled = false;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -102,7 +102,7 @@ public class LogGazerApp extends Application {
             }
         }
 
-        launch(args);
+        launch(LogGazerApp.class, args);
     }
 
 

@@ -17,14 +17,6 @@
   }, {
     "pattern":"\\Qlg.css\\E"
   }, {
-    "pattern":"\\Qlogback-test.scmo\\E"
-  }, {
-    "pattern":"\\Qlogback-test.xml\\E"
-  }, {
-    "pattern":"\\Qlogback.scmo\\E"
-  }, {
-    "pattern":"\\Qlogback.xml\\E"
-  }, {
     "pattern":"\\Qorg/fxmisc/richtext/code-area.css\\E"
   }, {
     "pattern":"\\Qorg/fxmisc/richtext/styled-text-area.css\\E"

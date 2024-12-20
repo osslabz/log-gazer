@@ -10,7 +10,7 @@
 },
 {
   "name":"com.sun.glass.ui.Application",
-  "methods":[{"name":"createPixels","parameterTypes":["int","int","int[]","float","float"] }, {"name":"enterNestedEventLoop","parameterTypes":[] }, {"name":"getScaleFactor","parameterTypes":["int","int","int","int"] }, {"name":"leaveNestedEventLoop","parameterTypes":["java.lang.Object"] }, {"name":"notifyDidBecomeActive","parameterTypes":[] }, {"name":"notifyDidFinishLaunching","parameterTypes":[] }, {"name":"notifyOpenFiles","parameterTypes":["java.lang.String[]"] }, {"name":"notifyWillBecomeActive","parameterTypes":[] }, {"name":"notifyWillFinishLaunching","parameterTypes":[] }, {"name":"reportException","parameterTypes":["java.lang.Throwable"] }]
+  "methods":[{"name":"createPixels","parameterTypes":["int","int","int[]","float","float"] }, {"name":"enterNestedEventLoop","parameterTypes":[] }, {"name":"getScaleFactor","parameterTypes":["int","int","int","int"] }, {"name":"leaveNestedEventLoop","parameterTypes":["java.lang.Object"] }, {"name":"notifyDidBecomeActive","parameterTypes":[] }, {"name":"notifyDidFinishLaunching","parameterTypes":[] }, {"name":"notifyDidResignActive","parameterTypes":[] }, {"name":"notifyOpenFiles","parameterTypes":["java.lang.String[]"] }, {"name":"notifyWillBecomeActive","parameterTypes":[] }, {"name":"notifyWillFinishLaunching","parameterTypes":[] }, {"name":"notifyWillResignActive","parameterTypes":[] }, {"name":"reportException","parameterTypes":["java.lang.Throwable"] }]
 },
 {
   "name":"com.sun.glass.ui.CommonDialogs$ExtensionFilter",
@@ -39,7 +39,7 @@
 },
 {
   "name":"com.sun.glass.ui.Screen",
-  "methods":[{"name":"<init>","parameterTypes":["long","int","int","int","int","int","int","int","int","int","int","int","int","int","int","int","float","float","float","float"] }]
+  "methods":[{"name":"<init>","parameterTypes":["long","int","int","int","int","int","int","int","int","int","int","int","int","int","int","int","float","float","float","float"] }, {"name":"notifySettingsChanged","parameterTypes":[] }]
 },
 {
   "name":"com.sun.glass.ui.Size",
