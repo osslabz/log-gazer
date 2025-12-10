@@ -108,7 +108,7 @@ public class LogGazerApp extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        if (Taskbar.isTaskbarSupported()) {
+        if (Taskbar.isTaskbarSupported()) {cd
             log.debug("Taskbar is supported");
             var taskbar = Taskbar.getTaskbar();
 
