@@ -1,5 +1,7 @@
 package net.osslabz.loggazer;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import java.io.BufferedInputStream;
@@ -21,18 +23,28 @@ public class FileUtils {
     }
 
 
+    private static boolean isValidLogFile(String path) {
+        long slashCount = path.chars().filter(ch -> ch == '/').count();
+        return slashCount <= 1; // root level or single subdirectory
+    }
+
+
     public static String loadFileContent(File file) throws IOException {
-        if (file.getName().endsWith(".gz") || file.getName().endsWith(".tar.gz")) {
-            return loadCompressedFile(file);
-        } else if (file.getName().endsWith(".zip")) {
-            return loadZipFile(file);
+        String fileNameLowerCase = file.getName().toLowerCase();
+        if (fileNameLowerCase.endsWith(".gz")) {
+            return loadGzipCompressedFile(file);
+        } else if (fileNameLowerCase.endsWith(".tar.gz")) {
+            return loadFileFromGzipCompressedTarArchive(file);
+        } else if (fileNameLowerCase.endsWith(".zip")) {
+            return loadSingleFileFromZipCompressedArchive(file);
         } else {
             return Files.readString(file.toPath());
         }
     }
 
 
-    public static String loadCompressedFile(File file) throws IOException {
+    public static String loadGzipCompressedFile(File file) throws IOException {
+        // Plain .gz files contain a single file by nature
         try (FileInputStream fis = new FileInputStream(file);
              BufferedInputStream bis = new BufferedInputStream(fis);
              GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis);
@@ -43,17 +55,57 @@ public class FileUtils {
     }
 
 
-    public static String loadZipFile(File file) throws IOException {
+    private static String loadFileFromGzipCompressedTarArchive(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file);
+             BufferedInputStream bis = new BufferedInputStream(fis);
+             GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis);
+             TarArchiveInputStream tis = new TarArchiveInputStream(gzis)) {
+
+            String content = null;
+            String firstName = null;
+            TarArchiveEntry entry;
+
+            while ((entry = tis.getNextEntry()) != null) {
+                if (!entry.isDirectory() && isValidLogFile(entry.getName())) {
+                    if (content != null) {
+                        throw new IOException("Tar.gz contains multiple files: " + firstName + ", " + entry.getName());
+                    }
+                    firstName = entry.getName();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(tis));
+                    content = reader.lines().collect(Collectors.joining("\n"));
+                }
+            }
+
+            if (content == null) {
+                throw new IOException("No log file found in tar.gz");
+            }
+            return content;
+        }
+    }
+
+
+    public static String loadSingleFileFromZipCompressedArchive(File file) throws IOException {
         try (ZipFile zipFile = new ZipFile(file)) {
+            String content = null;
+            String firstName = null;
+
             for (ZipEntry entry : zipFile.stream().toList()) {
-                if (!entry.isDirectory()) {
+                if (!entry.isDirectory() && isValidLogFile(entry.getName())) {
+                    if (content != null) {
+                        throw new IOException("Zip contains multiple files: " + firstName + ", " + entry.getName());
+                    }
+                    firstName = entry.getName();
                     try (InputStream is = zipFile.getInputStream(entry);
                          BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-                        return reader.lines().collect(Collectors.joining("\n"));
+                        content = reader.lines().collect(Collectors.joining("\n"));
                     }
                 }
             }
-            throw new IOException("Couldn't find a file inside zip");
+
+            if (content == null) {
+                throw new IOException("No log file found in zip");
+            }
+            return content;
         }
     }
 }
