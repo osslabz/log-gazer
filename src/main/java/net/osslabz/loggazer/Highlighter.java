@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class Highlighter {
@@ -66,7 +67,7 @@ public class Highlighter {
                     numSegmentsOpened++;
                 } else if (line.equals("}")) {
                     if (logLevelForCurrentSegment != null) {
-                        spansBuilder.add(List.of(logLevelForCurrentSegment.toLowerCase()), logSegmentLength + fullLineLength);
+                        spansBuilder.add(List.of(logLevelForCurrentSegment.toLowerCase(Locale.ROOT)), logSegmentLength + fullLineLength);
                     } else {
                         spansBuilder.add(Collections.emptyList(), logSegmentLength + fullLineLength);
                     }
@@ -82,7 +83,7 @@ public class Highlighter {
                         }
                     } else if (JsonUtils.lineMightBeJson(line)) {
                         String logLevel = determineLogLevelForLine(line);
-                        spansBuilder.add(logLevel != null ? List.of(logLevel.toLowerCase()) : Collections.emptyList(), fullLineLength);
+                        spansBuilder.add(logLevel != null ? List.of(logLevel.toLowerCase(Locale.ROOT)) : Collections.emptyList(), fullLineLength);
                     } else {
                         spansBuilder.add(Collections.emptyList(), fullLineLength);
                     }
@@ -131,11 +132,11 @@ public class Highlighter {
 
                 String logLevel = determineLogLevelForLine(line);
                 if (logLevel != null) {
-                    styles.add(logLevel.toLowerCase());
+                    styles.add(logLevel.toLowerCase(Locale.ROOT));
                     lastLogLevel = logLevel;
                 } else if (lastLogLevel != null) {
                     log.debug("No log level found on line {}, using previous level {}", numLines, lastLogLevel);
-                    styles.add(lastLogLevel.toLowerCase());
+                    styles.add(lastLogLevel.toLowerCase(Locale.ROOT));
                 } else {
                     log.trace("No log level found on line {} and no previous logLevel set, no highlighting", numLines);
                 }

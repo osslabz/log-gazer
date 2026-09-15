@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -85,25 +86,29 @@ public class LogGazerApp extends Application {
             disableLogging();
         }
 
-        if (args != null && args.length == 1) {
-            String singleParam = args[0];
-            if (singleParam != null) {
-                String paramLowerCase = StringUtils.stripStart(singleParam.trim().toLowerCase(), "-");
-                if (paramLowerCase.equals("version") || paramLowerCase.equals("v")) {
-                    System.out.printf(
-                            """
-                                    log-gazer %s%n
-                                    Copyright (C) 2024 Raphael Vullriede (raphael@osslabz.net)%n
-                                    License: Apache License Version 2.0, January 2004 <https://www.apache.org/licenses/LICENSE-2.0.txt>.%n
-                                    This is free software: you are free to change and redistribute it.%n
-                                    There is NO WARRANTY, to the extent permitted by law.%n
-                                    """, LogGazerApp.class.getPackage().getImplementationVersion());
-                    System.exit(0);
-                }
-            }
+        if (args != null && args.length == 1 && isVersionOption(args[0])) {
+            System.out.printf(
+                    """
+                            log-gazer %s%n
+                            Copyright (C) 2024 Raphael Vullriede (raphael@osslabz.net)%n
+                            License: Apache License Version 2.0, January 2004 <https://www.apache.org/licenses/LICENSE-2.0.txt>.%n
+                            This is free software: you are free to change and redistribute it.%n
+                            There is NO WARRANTY, to the extent permitted by law.%n
+                            """, LogGazerApp.class.getPackage().getImplementationVersion());
+            System.exit(0);
         }
 
         launch(LogGazerApp.class, args);
+    }
+
+
+    static boolean isVersionOption(String param) {
+
+        if (param == null) {
+            return false;
+        }
+        String paramLowerCase = StringUtils.stripStart(param.trim().toLowerCase(Locale.ROOT), "-");
+        return paramLowerCase.equals("version") || paramLowerCase.equals("v");
     }
 
 

@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
@@ -64,6 +65,20 @@ class FileUtilsTest {
         File file = write("APP.LOG.GZ", gzip(LOG.getBytes(StandardCharsets.UTF_8)));
 
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
+    }
+
+
+    @Test
+    void detectsZipExtensionIgnoringCaseInTurkishLocale() throws IOException {
+        File file = write("LOGS.ZIP", zip(Map.of("app.log", LOG)));
+
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+        try {
+            assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
     }
 
 

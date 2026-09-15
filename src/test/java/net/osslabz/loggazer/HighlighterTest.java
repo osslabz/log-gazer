@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,22 @@ class HighlighterTest {
         String text = JsonUtils.format(readTestData("example-json-ecs.log")).replace(System.lineSeparator(), "\n");
 
         assertEquals(List.of(), unstyledSpans(Highlighter.highlightLogLevel(text)));
+    }
+
+
+    @Test
+    void usesLocaleIndependentStyleNamesInTurkishLocale() {
+        String regularLog = "2025-01-01 INFO started\ncontinued without level\n";
+        String jsonLog = "{\"level\":\"INFO\"}\n{\n  \"level\" : \"INFO\"\n}\n";
+
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+        try {
+            assertEquals(List.of(List.of("info")), Highlighter.highlightLogLevel(regularLog).stream().map(StyleSpan::getStyle).toList());
+            assertEquals(List.of(List.of("info")), Highlighter.highlightLogLevel(jsonLog).stream().map(StyleSpan::getStyle).toList());
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
     }
 
 

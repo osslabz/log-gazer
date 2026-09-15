@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -46,7 +47,7 @@ public class FileUtils {
 
 
     public static String loadFileContent(File file) throws IOException {
-        String fileNameLowerCase = file.getName().toLowerCase();
+        String fileNameLowerCase = file.getName().toLowerCase(Locale.ROOT);
         if (fileNameLowerCase.endsWith(".tar.gz") || fileNameLowerCase.endsWith(".tgz")) {
             return loadFileFromGzipCompressedTarArchive(file);
         } else if (fileNameLowerCase.endsWith(".gz")) {
