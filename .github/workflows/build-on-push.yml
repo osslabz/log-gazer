@@ -21,4 +21,5 @@ jobs:
           cache: maven
 
       - name: maven-build-verify
-        run: mvn --batch-mode --update-snapshots verify
+        # the JavaFX tests need a display
+        run: xvfb-run -a mvn --batch-mode --update-snapshots verify

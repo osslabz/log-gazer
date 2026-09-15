@@ -28,6 +28,7 @@ The following plugins are configured in the main build section and run during st
 **Version**: 3.5.4
 **Lifecycle Phase**: `test`
 **Purpose**: Runs the JUnit Jupiter tests under `src/test/java`. Pinned so CI does not depend on the default of the runner's Maven version.
+**Configuration**: `--illegal-native-access=allow`, because the JavaFX tests load native libraries. Those tests start the real JavaFX toolkit and open windows, so they need a display; CI runs Maven under `xvfb-run` on Linux.
 
 ### maven-jar-plugin
 **Version**: 3.4.2

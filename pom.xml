@@ -274,6 +274,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.4</version>
+                <configuration>
+                    <!-- JavaFX tests load native libraries; JDK 25 warns about that unless it is allowed -->
+                    <argLine>--illegal-native-access=allow</argLine>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.openjfx</groupId>

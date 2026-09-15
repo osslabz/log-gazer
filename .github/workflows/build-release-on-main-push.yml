@@ -50,7 +50,8 @@ jobs:
           native-image --version
 
       - id: maven-build-verify
-        run: mvn --batch-mode -Pnative-graalvm-default-liberica-nik -Dcreate-os-specific-archive clean package
+        # the JavaFX tests need a display, which Linux runners only get from xvfb
+        run: ${{ runner.os == 'Linux' && 'xvfb-run -a ' || '' }}mvn --batch-mode -Pnative-graalvm-default-liberica-nik -Dcreate-os-specific-archive clean package
 
       - id: configure-git-user
         uses: qoomon/actions--setup-git@v1

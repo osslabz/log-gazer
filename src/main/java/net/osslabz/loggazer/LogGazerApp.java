@@ -2,6 +2,7 @@ package net.osslabz.loggazer;
 
 import ch.qos.logback.classic.Level;
 import javafx.application.Application;
+import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -59,7 +60,7 @@ public class LogGazerApp extends Application {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private final Map<String, TabContent> tabContentList = new HashMap<>();
+    final Map<String, TabContent> tabContentList = new HashMap<>();
 
     private TabPane tabPane;
 
@@ -370,6 +371,12 @@ public class LogGazerApp extends Application {
     private TabPane createAndConfigureTabPane(Stage primaryStage) {
 
         TabPane tabPane = new TabPane();
+        // the close button removes the tab from this list too, while removing it in code fires no onClosed
+        tabPane.getTabs().addListener((ListChangeListener<Tab>) change -> {
+            while (change.next()) {
+                change.getRemoved().forEach(tab -> this.tabContentList.remove(tab.getId()));
+            }
+        });
         tabPane.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
 
             Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
@@ -422,7 +429,7 @@ public class LogGazerApp extends Application {
     }
 
 
-    private void openFileInNewTab(File file) {
+    void openFileInNewTab(File file) {
 
         Task<String> loadTask = new Task<>() {
             @Override
