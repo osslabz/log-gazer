@@ -500,7 +500,7 @@ public class LogGazerApp extends Application {
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("File");
         MenuItem openMenuItem = new MenuItem("Open");
-        openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
+        openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
         openMenuItem.setOnAction(e -> openFile());
         fileMenu.getItems().add(openMenuItem);
         menuBar.getMenus().add(fileMenu);
