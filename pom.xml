@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>25.0.1</version>
+            <version>25.0.3-ea+2</version>
         </dependency>
         <dependency>
             <groupId>org.fxmisc.richtext</groupId>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.20.1</version>
+            <version>2.21.2</version>
         </dependency>
 
         <dependency>
@@ -74,7 +74,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.5.21</version>
+            <version>1.5.32</version>
         </dependency>
 
     </dependencies>
