@@ -227,6 +227,7 @@ public class LogGazerApp extends Application {
 
         String searchTerm = searchField.getText();
         if (searchTerm.isEmpty()) {
+            toggleSearchButtons(false);
             return;
         }
 
@@ -237,16 +238,12 @@ public class LogGazerApp extends Application {
         if (matchPositions.isEmpty()) {
             codeArea.selectRange(codeArea.getAnchor(), codeArea.getAnchor());
             matchCountLabel.setText("No matches found");
-            prevMatchButton.setDisable(true);
-            nextMatchButton.setDisable(true);
+            toggleSearchButtons(false);
             return;
         }
 
+        toggleSearchButtons(true);
         navigateToCurrentMatch();
-
-        // Enable/disable buttons based on match count
-        prevMatchButton.setDisable(matchPositions.size() <= 1);
-        nextMatchButton.setDisable(matchPositions.size() <= 1);
     }
 
 
@@ -409,6 +406,10 @@ public class LogGazerApp extends Application {
         this.buttonFormatJson.setDisable(!enable);
         this.searchField.setDisable(!enable);
         this.searchButton.setDisable(!enable);
+        this.toggleSearchButtons(false);
+    }
+
+    private void toggleSearchButtons(boolean enable) {
         this.prevMatchButton.setDisable(!enable);
         this.nextMatchButton.setDisable(!enable);
     }
