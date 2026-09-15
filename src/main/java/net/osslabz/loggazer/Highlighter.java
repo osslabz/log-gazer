@@ -80,6 +80,9 @@ public class Highlighter {
                         if (logLevelForCurrentSegment == null) {
                             logLevelForCurrentSegment = determineLogLevelForLine(line);
                         }
+                    } else if (JsonUtils.lineMightBeJson(line)) {
+                        String logLevel = determineLogLevelForLine(line);
+                        spansBuilder.add(logLevel != null ? List.of(logLevel.toLowerCase()) : Collections.emptyList(), fullLineLength);
                     } else {
                         spansBuilder.add(Collections.emptyList(), fullLineLength);
                     }

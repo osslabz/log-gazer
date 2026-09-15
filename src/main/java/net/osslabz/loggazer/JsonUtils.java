@@ -47,7 +47,7 @@ public class JsonUtils {
     }
 
 
-    private static boolean lineMightBeJson(String line) {
+    static boolean lineMightBeJson(String line) {
         String trimmed = line.trim();
         return (trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"));
     }
