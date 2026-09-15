@@ -45,8 +45,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 public class LogGazerApp extends Application {
@@ -58,8 +56,6 @@ public class LogGazerApp extends Application {
     public static final String SEARCH_QUERY_PLACEHOLDER = "Search...";
 
     private static boolean loggingDisabled = true;
-
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     final Map<String, TabContent> tabContentList = new HashMap<>();
 
@@ -430,13 +426,6 @@ public class LogGazerApp extends Application {
     }
 
 
-    @Override
-    public void stop() {
-
-        executor.shutdown();
-    }
-
-
     void openFileInNewTab(File file) {
 
         Task<String> loadTask = new Task<>() {
@@ -507,13 +496,7 @@ public class LogGazerApp extends Application {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
-/*
-                new FileChooser.ExtensionFilter("Log Files", "*.log", "*.txt")
-
-                new FileChooser.ExtensionFilter("Compressed Files", "*.gz", "*.zip", "*.tar.gz")
-*/
                 new FileChooser.ExtensionFilter("Files", "*.*")
-
         );
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {

@@ -79,12 +79,6 @@ public class TabContent {
         }
 
 
-        public List<Integer> getMatches() {
-
-            return matches;
-        }
-
-
         public void setMatches(List<Integer> matches) {
 
             this.matches = matches;
