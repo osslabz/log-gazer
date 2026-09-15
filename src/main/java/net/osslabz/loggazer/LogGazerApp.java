@@ -1,17 +1,6 @@
 package net.osslabz.loggazer;
 
 import ch.qos.logback.classic.Level;
-import java.awt.Taskbar;
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javafx.application.Application;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
@@ -44,6 +33,18 @@ import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.Taskbar;
+import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class LogGazerApp extends Application {
@@ -89,13 +90,13 @@ public class LogGazerApp extends Application {
                 String paramLowerCase = StringUtils.stripStart(singleParam.trim().toLowerCase(), "-");
                 if (paramLowerCase.equals("version") || paramLowerCase.equals("v")) {
                     System.out.printf(
-                        """
-                            log-gazer %s%n
-                            Copyright (C) 2024 Raphael Vullriede (raphael@osslabz.net)%n
-                            License: Apache License Version 2.0, January 2004 <https://www.apache.org/licenses/LICENSE-2.0.txt>.%n
-                            This is free software: you are free to change and redistribute it.%n
-                            There is NO WARRANTY, to the extent permitted by law.%n
-                            """, LogGazerApp.class.getPackage().getImplementationVersion());
+                            """
+                                    log-gazer %s%n
+                                    Copyright (C) 2024 Raphael Vullriede (raphael@osslabz.net)%n
+                                    License: Apache License Version 2.0, January 2004 <https://www.apache.org/licenses/LICENSE-2.0.txt>.%n
+                                    This is free software: you are free to change and redistribute it.%n
+                                    There is NO WARRANTY, to the extent permitted by law.%n
+                                    """, LogGazerApp.class.getPackage().getImplementationVersion());
                     System.exit(0);
                 }
             }
@@ -199,15 +200,15 @@ public class LogGazerApp extends Application {
         resetSearch();
 
         toolBar.getItems().addAll(
-            this.buttonFormatJson,
-            new Separator(),
-            this.buttonMarkLogLevel,
-            new Separator(),
-            this.searchField,
-            this.searchButton,
-            this.prevMatchButton,
-            this.nextMatchButton,
-            this.matchCountLabel
+                this.buttonFormatJson,
+                new Separator(),
+                this.buttonMarkLogLevel,
+                new Separator(),
+                this.searchField,
+                this.searchButton,
+                this.prevMatchButton,
+                this.nextMatchButton,
+                this.matchCountLabel
 
         );
 
@@ -261,7 +262,7 @@ public class LogGazerApp extends Application {
         int numMatches = tabContent.getSearchData().numMatches();
 
         searchField.setText(StringUtils.isNotBlank(tabContent.getSearchData().getQuery()) ? tabContent.getSearchData().getQuery() :
-            SEARCH_QUERY_PLACEHOLDER);
+                SEARCH_QUERY_PLACEHOLDER);
         matchCountLabel.setText(String.format("%d of %d matches", currentMatchIndex + 1, numMatches));
 
         if (currentMatchIndex >= 0 && currentMatchIndex < numMatches) {
@@ -431,6 +432,7 @@ public class LogGazerApp extends Application {
         };
 
         loadTask.setOnSucceeded(event -> {
+
             String rawContent = loadTask.getValue();
 
             CodeArea codeArea = new CodeArea(rawContent);
@@ -494,7 +496,7 @@ public class LogGazerApp extends Application {
 
                 new FileChooser.ExtensionFilter("Compressed Files", "*.gz", "*.zip", "*.tar.gz")
 */
-            new FileChooser.ExtensionFilter("Files", "*.*")
+                new FileChooser.ExtensionFilter("Files", "*.*")
 
         );
         File file = fileChooser.showOpenDialog(null);
