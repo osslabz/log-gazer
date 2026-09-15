@@ -337,6 +337,13 @@ public class LogGazerApp extends Application {
             } else {
                 codeArea.replaceText(originalContent);
             }
+
+            // match positions refer to the replaced text
+            String query = selectedTabContent.getSearchData().getQuery();
+            if (query != null) {
+                this.searchField.setText(query);
+                performSearch();
+            }
         });
         return button;
     }

@@ -7,10 +7,16 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import javafx.collections.ListChangeListener;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.fxmisc.richtext.CodeArea;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +28,9 @@ import static net.osslabz.loggazer.FxTestUtils.runOnFxThread;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class LogGazerAppTest {
+
+    private static final String JSON_LINES_WITH_TWO_MATCHES =
+            "{\"level\":\"INFO\",\"message\":\"first needle\"}\n{\"level\":\"ERROR\",\"message\":\"second needle\"}\n";
 
     @TempDir
     Path tempDir;
@@ -63,6 +72,40 @@ class LogGazerAppTest {
     }
 
 
+    @Test
+    void nextMatchAfterFormattingJsonSelectsQuery() throws Exception {
+        open(write("app.log", JSON_LINES_WITH_TWO_MATCHES));
+
+        runOnFxThread(() -> {
+            searchField().setText("needle");
+            button("Search").fire();
+            button("Format JSON").fire();
+            button("Next ▶").fire();
+        });
+
+        assertEquals("needle", callOnFxThread(() -> selectedCodeArea().getSelectedText()));
+        assertEquals("2 of 2 matches", callOnFxThread(() -> matchCountLabel().getText()));
+    }
+
+
+    @Test
+    void nextMatchAfterRestoringOriginalJsonSelectsQuery() throws Exception {
+        open(write("app.log", JSON_LINES_WITH_TWO_MATCHES));
+
+        runOnFxThread(() -> {
+            button("Format JSON").fire();
+            searchField().setText("needle");
+            button("Search").fire();
+            button("Next ▶").fire();
+            button("Format JSON").fire();
+            button("Next ▶").fire();
+        });
+
+        assertEquals("needle", callOnFxThread(() -> selectedCodeArea().getSelectedText()));
+        assertEquals("2 of 2 matches", callOnFxThread(() -> matchCountLabel().getText()));
+    }
+
+
     private File write(String name, String content) throws IOException {
         return Files.writeString(this.tempDir.resolve(name), content).toFile();
     }
@@ -89,5 +132,34 @@ class LogGazerAppTest {
 
     private TabPane tabPane() {
         return (TabPane) ((BorderPane) this.stage.getScene().getRoot()).getCenter();
+    }
+
+
+    private ToolBar toolBar() {
+        return (ToolBar) ((VBox) ((BorderPane) this.stage.getScene().getRoot()).getTop()).getChildren().get(1);
+    }
+
+
+    private Button button(String text) {
+        return toolBar().getItems().stream()
+                .filter(item -> item instanceof Button button && button.getText().equals(text))
+                .map(Button.class::cast)
+                .findFirst()
+                .orElseThrow();
+    }
+
+
+    private TextField searchField() {
+        return toolBar().getItems().stream().filter(TextField.class::isInstance).map(TextField.class::cast).findFirst().orElseThrow();
+    }
+
+
+    private Label matchCountLabel() {
+        return toolBar().getItems().stream().filter(Label.class::isInstance).map(Label.class::cast).findFirst().orElseThrow();
+    }
+
+
+    private CodeArea selectedCodeArea() {
+        return this.app.tabContentList.get(tabPane().getSelectionModel().getSelectedItem().getId()).getCodeArea();
     }
 }
