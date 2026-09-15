@@ -106,6 +106,17 @@ class LogGazerAppTest {
     }
 
 
+    @Test
+    void formatsJsonFromFileWithCrlfLineEndings() throws Exception {
+        open(write("app.log", "{\"level\":\"INFO\",\"message\":\"started\"}\r\n{\"level\":\"ERROR\",\"message\":\"failed\"}\r\n"));
+
+        runOnFxThread(() -> button("Format JSON").fire());
+
+        assertEquals("{\n  \"level\" : \"INFO\",\n  \"message\" : \"started\"\n}\n{\n  \"level\" : \"ERROR\",\n  \"message\" : \"failed\"\n}\n",
+                callOnFxThread(() -> selectedCodeArea().getText()));
+    }
+
+
     private File write(String name, String content) throws IOException {
         return Files.writeString(this.tempDir.resolve(name), content).toFile();
     }

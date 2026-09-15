@@ -454,7 +454,7 @@ public class LogGazerApp extends Application {
             codeArea.setEditable(false);
             codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
-            TabContent newTabContent = new TabContent(file, rawContent, codeArea);
+            TabContent newTabContent = new TabContent(file, codeArea.getText(), codeArea);
 
             VirtualizedScrollPane<CodeArea> scrollPane = new VirtualizedScrollPane<>(codeArea);
 
