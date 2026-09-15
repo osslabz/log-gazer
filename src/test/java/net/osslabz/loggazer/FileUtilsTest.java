@@ -40,6 +40,14 @@ class FileUtilsTest {
 
 
     @Test
+    void replacesInvalidUtf8BytesInPlainFile() throws IOException {
+        File file = write("latin1.log", "2025-01-01 INFO Grüße aus München\n".getBytes(StandardCharsets.ISO_8859_1));
+
+        assertEquals("2025-01-01 INFO Gr\uFFFD\uFFFDe aus M\uFFFDnchen\n", FileUtils.loadFileContent(file));
+    }
+
+
+    @Test
     void loadsGzipFileAsJoinedLines() throws IOException {
         File file = write("app.log.gz", gzip(LOG.getBytes(StandardCharsets.UTF_8)));
 
