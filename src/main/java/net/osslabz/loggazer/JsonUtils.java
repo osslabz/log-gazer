@@ -17,6 +17,9 @@ public class JsonUtils {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
+    // backslashes that escape each other, then the backslash starting an escape sequence
+    private static final String ESCAPE_START = "(?<!\\\\)((?:\\\\\\\\)*)\\\\";
+
 
     private JsonUtils() {
         // intentionally empty
@@ -69,8 +72,8 @@ public class JsonUtils {
             throw new RuntimeException(e);
         }
         String formattedJson = sb.toString();
-        formattedJson = formattedJson.replace("\\n", System.lineSeparator());
-        formattedJson = formattedJson.replace("\\t", "\t");
+        formattedJson = formattedJson.replaceAll(ESCAPE_START + "n", "$1" + System.lineSeparator());
+        formattedJson = formattedJson.replaceAll(ESCAPE_START + "t", "$1\t");
         return formattedJson;
     }
 
