@@ -7,7 +7,7 @@ Log Gazer is a simple log file viewer that can highlight log lines based on cert
 In addition, it can also format JSON logs in case one needs to be parse them.
 
 ## Features
-- Opens regular files, ZIP-Files (*.zip), TAR files (*.tar) and GZ files (*.gz, *.tar.gz) directly
+- Opens regular files, ZIP-Files (*.zip), TAR files (*.tar) and GZ files (*.gz, *.tar.gz, *.tgz) directly
 - Detects various log levels (TRACE, DEBUG, INFO, WARN, ERROR, FATAL) and highlights log lines accordingly for easy visual parsing
 - Can process JSON log files, even if the whole file is not valid JSON (but the log line is).
 

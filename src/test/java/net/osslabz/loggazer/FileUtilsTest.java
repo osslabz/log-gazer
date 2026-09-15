@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -90,6 +92,51 @@ class FileUtilsTest {
     }
 
 
+    @Test
+    void loadsSingleLogFromTarGz() throws IOException {
+        File file = write("app.tar.gz", gzip(tar(Map.of("app.log", LOG))));
+
+        assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
+    }
+
+
+    @Test
+    void loadsSingleLogFromTgz() throws IOException {
+        File file = write("app.tgz", gzip(tar(Map.of("app.log", LOG))));
+
+        assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
+    }
+
+
+    @Test
+    void loadsSingleLogFromTar() throws IOException {
+        File file = write("app.tar", tar(Map.of("app.log", LOG)));
+
+        assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
+    }
+
+
+    @Test
+    void ignoresLogsNestedDeeperThanOneDirectoryInTar() throws IOException {
+        File file = write("app.tar", tar(Map.of("var/logs/app.log", LOG)));
+
+        IOException e = assertThrows(IOException.class, () -> FileUtils.loadFileContent(file));
+        assertEquals("No log file found in tar", e.getMessage());
+    }
+
+
+    @Test
+    void rejectsTarWithMoreThanOneLog() throws IOException {
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("app.log", LOG);
+        entries.put("other.log", LOG);
+        File file = write("app.tar", tar(entries));
+
+        IOException e = assertThrows(IOException.class, () -> FileUtils.loadFileContent(file));
+        assertTrue(e.getMessage().contains("app.log") && e.getMessage().contains("other.log"), e.getMessage());
+    }
+
+
     private File write(String name, byte[] content) throws IOException {
         return Files.write(tempDir.resolve(name), content).toFile();
     }
@@ -99,6 +146,22 @@ class FileUtilsTest {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (OutputStream out = new GZIPOutputStream(bytes)) {
             out.write(content);
+        }
+        return bytes.toByteArray();
+    }
+
+
+    private static byte[] tar(Map<String, String> entries) throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (TarArchiveOutputStream out = new TarArchiveOutputStream(bytes)) {
+            for (Map.Entry<String, String> entry : entries.entrySet()) {
+                byte[] content = entry.getValue().getBytes(StandardCharsets.UTF_8);
+                TarArchiveEntry tarEntry = new TarArchiveEntry(entry.getKey());
+                tarEntry.setSize(content.length);
+                out.putArchiveEntry(tarEntry);
+                out.write(content);
+                out.closeArchiveEntry();
+            }
         }
         return bytes.toByteArray();
     }

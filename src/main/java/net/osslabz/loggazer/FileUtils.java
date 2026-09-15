@@ -31,10 +31,12 @@ public class FileUtils {
 
     public static String loadFileContent(File file) throws IOException {
         String fileNameLowerCase = file.getName().toLowerCase();
-        if (fileNameLowerCase.endsWith(".gz")) {
-            return loadGzipCompressedFile(file);
-        } else if (fileNameLowerCase.endsWith(".tar.gz")) {
+        if (fileNameLowerCase.endsWith(".tar.gz") || fileNameLowerCase.endsWith(".tgz")) {
             return loadFileFromGzipCompressedTarArchive(file);
+        } else if (fileNameLowerCase.endsWith(".gz")) {
+            return loadGzipCompressedFile(file);
+        } else if (fileNameLowerCase.endsWith(".tar")) {
+            return loadFileFromTarArchive(file);
         } else if (fileNameLowerCase.endsWith(".zip")) {
             return loadSingleFileFromZipCompressedArchive(file);
         } else {
@@ -58,8 +60,22 @@ public class FileUtils {
     private static String loadFileFromGzipCompressedTarArchive(File file) throws IOException {
         try (FileInputStream fis = new FileInputStream(file);
              BufferedInputStream bis = new BufferedInputStream(fis);
-             GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis);
-             TarArchiveInputStream tis = new TarArchiveInputStream(gzis)) {
+             GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis)) {
+            return loadSingleFileFromTarArchive(gzis);
+        }
+    }
+
+
+    private static String loadFileFromTarArchive(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file);
+             BufferedInputStream bis = new BufferedInputStream(fis)) {
+            return loadSingleFileFromTarArchive(bis);
+        }
+    }
+
+
+    private static String loadSingleFileFromTarArchive(InputStream archive) throws IOException {
+        try (TarArchiveInputStream tis = new TarArchiveInputStream(archive)) {
 
             String content = null;
             String firstName = null;
@@ -68,7 +84,7 @@ public class FileUtils {
             while ((entry = tis.getNextEntry()) != null) {
                 if (!entry.isDirectory() && isValidLogFile(entry.getName())) {
                     if (content != null) {
-                        throw new IOException("Tar.gz contains multiple files: " + firstName + ", " + entry.getName());
+                        throw new IOException("Tar contains multiple files: " + firstName + ", " + entry.getName());
                     }
                     firstName = entry.getName();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(tis));
@@ -77,7 +93,7 @@ public class FileUtils {
             }
 
             if (content == null) {
-                throw new IOException("No log file found in tar.gz");
+                throw new IOException("No log file found in tar");
             }
             return content;
         }
