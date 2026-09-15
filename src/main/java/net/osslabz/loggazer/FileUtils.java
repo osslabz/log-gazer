@@ -27,7 +27,8 @@ public class FileUtils {
     private static boolean isValidLogFile(String path) {
         long slashCount = path.chars().filter(ch -> ch == '/').count();
         return slashCount <= 1 // root level or single subdirectory
-                && !isAppleDoubleFile(path);
+                && !isAppleDoubleFile(path)
+                && !isDsStoreFile(path);
     }
 
 
@@ -35,6 +36,12 @@ public class FileUtils {
     private static boolean isAppleDoubleFile(String path) {
         String fileName = path.substring(path.lastIndexOf('/') + 1);
         return fileName.startsWith("._");
+    }
+
+
+    // Finder writes .DS_Store into every folder it has displayed
+    private static boolean isDsStoreFile(String path) {
+        return path.equals(".DS_Store") || path.endsWith("/.DS_Store");
     }
 
 

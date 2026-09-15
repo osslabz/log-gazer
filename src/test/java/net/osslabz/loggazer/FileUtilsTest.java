@@ -29,6 +29,8 @@ class FileUtilsTest {
 
     private static final String APPLE_DOUBLE_CONTENT = "Mac OS X extended attributes";
 
+    private static final String DS_STORE_CONTENT = "Bud1";
+
     @TempDir
     Path tempDir;
 
@@ -120,6 +122,28 @@ class FileUtilsTest {
         entries.put("._app.log", APPLE_DOUBLE_CONTENT);
         entries.put("app.log", LOG);
         File file = write("app.tar.gz", gzip(tar(entries)));
+
+        assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
+    }
+
+
+    @Test
+    void ignoresDsStoreEntriesInZip() throws IOException {
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("logs/.DS_Store", DS_STORE_CONTENT);
+        entries.put("logs/app.log", LOG);
+        File file = write("logs.zip", zip(entries));
+
+        assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
+    }
+
+
+    @Test
+    void ignoresDsStoreEntriesInTar() throws IOException {
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put(".DS_Store", DS_STORE_CONTENT);
+        entries.put("app.log", LOG);
+        File file = write("logs.tar", tar(entries));
 
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
