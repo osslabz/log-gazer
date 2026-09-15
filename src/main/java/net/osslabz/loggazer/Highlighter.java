@@ -98,12 +98,16 @@ public class Highlighter {
 
 
     private static String determineLogLevelForLine(String line) {
+        String firstLogLevel = null;
+        int firstIndex = Integer.MAX_VALUE;
         for (String logLevel : LOG_LEVEL) {
-            if (line.contains(logLevel)) {
-                return logLevel;
+            int index = line.indexOf(logLevel);
+            if (index != -1 && index < firstIndex) {
+                firstLogLevel = logLevel;
+                firstIndex = index;
             }
         }
-        return null;
+        return firstLogLevel;
     }
 
 
