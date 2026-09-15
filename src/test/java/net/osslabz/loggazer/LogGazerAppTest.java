@@ -26,6 +26,7 @@ import org.junit.jupiter.api.io.TempDir;
 import static net.osslabz.loggazer.FxTestUtils.callOnFxThread;
 import static net.osslabz.loggazer.FxTestUtils.runOnFxThread;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class LogGazerAppTest {
 
@@ -114,6 +115,24 @@ class LogGazerAppTest {
 
         assertEquals("{\n  \"level\" : \"INFO\",\n  \"message\" : \"started\"\n}\n{\n  \"level\" : \"ERROR\",\n  \"message\" : \"failed\"\n}\n",
                 callOnFxThread(() -> selectedCodeArea().getText()));
+    }
+
+
+    @Test
+    void reenablesMatchNavigationWhenReturningToSearchedTab() throws Exception {
+        Tab searchedTab = open(write("first.log", "2025-01-01 INFO started\n2025-01-01 INFO ready\n"));
+        Tab otherTab = open(write("second.log", "2025-01-01 ERROR failed\n"));
+
+        runOnFxThread(() -> {
+            tabPane().getSelectionModel().select(searchedTab);
+            searchField().setText("INFO");
+            button("Search").fire();
+            tabPane().getSelectionModel().select(otherTab);
+            tabPane().getSelectionModel().select(searchedTab);
+        });
+
+        assertFalse(callOnFxThread(() -> button("◀ Previous").isDisabled()));
+        assertFalse(callOnFxThread(() -> button("Next ▶").isDisabled()));
     }
 
 

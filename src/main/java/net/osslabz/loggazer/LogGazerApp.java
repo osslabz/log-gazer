@@ -264,6 +264,7 @@ public class LogGazerApp extends Application {
         matchCountLabel.setText(String.format("%d of %d matches", currentMatchIndex + 1, numMatches));
 
         if (currentMatchIndex >= 0 && currentMatchIndex < numMatches) {
+            toggleSearchButtons(true);
             int position = tabContent.getSearchData().getCurrentMatchPosition();
             CodeArea codeArea = tabContent.getCodeArea();
             codeArea.moveTo(position);
