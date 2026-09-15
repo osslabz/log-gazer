@@ -89,11 +89,11 @@ public class LogGazerApp extends Application {
         if (args != null && args.length == 1 && isVersionOption(args[0])) {
             System.out.printf(
                     """
-                            log-gazer %s%n
-                            Copyright (C) 2024 Raphael Vullriede (raphael@osslabz.net)%n
-                            License: Apache License Version 2.0, January 2004 <https://www.apache.org/licenses/LICENSE-2.0.txt>.%n
-                            This is free software: you are free to change and redistribute it.%n
-                            There is NO WARRANTY, to the extent permitted by law.%n
+                            log-gazer %s
+                            Copyright (C) 2024 Raphael Vullriede (raphael@osslabz.net)
+                            License: Apache License Version 2.0, January 2004 <https://www.apache.org/licenses/LICENSE-2.0.txt>.
+                            This is free software: you are free to change and redistribute it.
+                            There is NO WARRANTY, to the extent permitted by law.
                             """, LogGazerApp.class.getPackage().getImplementationVersion());
             System.exit(0);
         }

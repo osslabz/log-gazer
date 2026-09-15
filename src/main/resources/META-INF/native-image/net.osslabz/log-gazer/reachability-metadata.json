@@ -2311,6 +2311,12 @@
       "glob": "META-INF/services/org.slf4j.spi.SLF4JServiceProvider"
     },
     {
+      "glob": "ch/qos/logback/classic/logback-classic-version.properties"
+    },
+    {
+      "glob": "ch/qos/logback/core/logback-core-version.properties"
+    },
+    {
       "glob": "com/sun/javafx/scene/control/skin/resources/controls_en.properties"
     },
     {
