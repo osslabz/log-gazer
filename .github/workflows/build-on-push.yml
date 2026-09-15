@@ -23,3 +23,6 @@ jobs:
       - name: maven-build-verify
         # the JavaFX tests need a display
         run: xvfb-run -a mvn --batch-mode --update-snapshots verify
+
+      - name: shaded-jar-version
+        run: java -jar target/log-gazer-*.jar --version

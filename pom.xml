@@ -18,6 +18,8 @@
         <maven.compiler.release>${osslabz.java.version}</maven.compiler.release>
 
         <mainClass>net.osslabz.loggazer.LogGazerApp</mainClass>
+        <!-- java -jar refuses a Main-Class that extends Application unless JavaFX is on the module path -->
+        <jarMainClass>net.osslabz.loggazer.AppStarter</jarMainClass>
     </properties>
 
     <licenses>
@@ -301,7 +303,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>${mainClass}</mainClass>
+                                    <mainClass>${jarMainClass}</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -315,7 +317,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>${mainClass}</mainClass>
+                            <mainClass>${jarMainClass}</mainClass>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>

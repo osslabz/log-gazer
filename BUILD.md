@@ -35,7 +35,7 @@ The following plugins are configured in the main build section and run during st
 **Lifecycle Phase**: `package`
 **Purpose**: Creates the project JAR file and configures its manifest.
 **Key Configuration**:
-- Sets `Main-Class` to `net.osslabz.loggazer.LogGazerApp`
+- Sets `Main-Class` to `net.osslabz.loggazer.AppStarter`. The java launcher refuses a main class that extends `Application` while JavaFX is on the class path, so the JAR cannot start `LogGazerApp` directly.
 - Adds default implementation entries (version, vendor, etc.)
 
 ### maven-shade-plugin
@@ -163,5 +163,6 @@ Prepares and performs a release using conventional commits for versioning.
 ## Key Properties
 
 - `osslabz.java.version`: 25
-- `mainClass`: net.osslabz.loggazer.LogGazerApp
+- `mainClass`: net.osslabz.loggazer.LogGazerApp (native image, `javafx:run`)
+- `jarMainClass`: net.osslabz.loggazer.AppStarter (JAR manifests)
 - `project.build.outputTimestamp`: 2024-12-02T20:20:06Z (for reproducible builds)
