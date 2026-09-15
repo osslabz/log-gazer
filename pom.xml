@@ -244,7 +244,7 @@
                                         <fileSet>
                                             <directory>${project.build.directory}</directory>
                                             <includes>
-                                                <include>log-gazer*</include>
+                                                <include>log-gazer</include>
                                             </includes>
                                             <outputDirectory>.</outputDirectory>
                                         </fileSet>

@@ -129,7 +129,7 @@ These profiles activate when `-Dcreate-os-specific-archive` is passed on the com
 #### maven-assembly-plugin
 **Version**: 3.7.1
 - Creates `.tar.gz` archives
-- Packages `log-gazer*` native binary
+- Packages the `log-gazer` native binary
 
 **Naming Convention**: `${project.artifactId}-${project.version}-${os.detected.classifier}`
 
