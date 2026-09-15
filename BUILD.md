@@ -71,7 +71,7 @@ The plugins interact during the Maven build lifecycle in the following sequence:
    └─> native-maven-plugin (GraalVM)
        └─> Compiles uber JAR to native binary during package phase
 
-4. PLATFORM PACKAGING (auto-activated by native profile)
+4. PLATFORM PACKAGING (-Dcreate-os-specific-archive)
    └─> os-maven-plugin (extension)
        └─> Detects OS/architecture → sets classifier
            └─> maven-assembly-plugin
@@ -108,11 +108,11 @@ The plugins interact during the Maven build lifecycle in the following sequence:
 - Fallback mode disabled (fails if native compilation fails)
 - Sets `-Djava.awt.headless=false` for JavaFX support
 
-Activating this profile also sets the `create-os-specific-archive` property, which auto-activates one of the platform-specific archive profiles below.
+This profile builds the binary only. Pass `-Dcreate-os-specific-archive` as well to pack it into an archive.
 
 ### Platform-specific Archive Profiles
 
-These profiles are **not activated manually** — they are auto-activated when the `create-os-specific-archive` property is set (by the native profile) combined with OS detection.
+These profiles activate when `-Dcreate-os-specific-archive` is passed on the command line and the OS matches. Maven ignores properties set inside the pom when activating profiles, so the native profile cannot switch them on.
 
 #### os-specific-archive-windows
 **Activation**: `create-os-specific-archive` property + Windows OS
@@ -142,9 +142,9 @@ Compiles the code and creates both the regular JAR and uber JAR.
 
 ### Native Image Build
 ```bash
-mvn clean package -Pnative-graalvm-default-liberica-nik
+mvn clean package -Pnative-graalvm-default-liberica-nik -Dcreate-os-specific-archive
 ```
-Builds a native executable using GraalVM (requires Liberica NIK). The appropriate platform-specific archive (`.zip` on Windows, `.tar.gz` on Linux/macOS) is created automatically.
+Builds a native executable using GraalVM (requires Liberica NIK) and packs it into a platform-specific archive (`.zip` on Windows, `.tar.gz` on Linux/macOS). This is the command the release workflow runs. Leave out `-Dcreate-os-specific-archive` to build only the binary.
 
 ### Run with JavaFX Plugin
 ```bash
