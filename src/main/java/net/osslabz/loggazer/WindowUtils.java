@@ -52,12 +52,12 @@ public class WindowUtils {
         return UserPreferences.getBoolean(PREFS_MAXIMIZED, false);
     }
 
-    private static double getHeight() {
-        return UserPreferences.getDouble(PREFS_HEIGHT, DEFAULT_WIDTH);
+    static double getHeight() {
+        return UserPreferences.getDouble(PREFS_HEIGHT, DEFAULT_HEIGHT);
     }
 
-    private static double getWidth() {
-        return UserPreferences.getDouble(PREFS_WIDTH, DEFAULT_HEIGHT);
+    static double getWidth() {
+        return UserPreferences.getDouble(PREFS_WIDTH, DEFAULT_WIDTH);
     }
 
     private static double getY() {
