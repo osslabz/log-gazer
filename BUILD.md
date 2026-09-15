@@ -24,6 +24,11 @@ The following plugins are configured in the main build section and run during st
 **Purpose**: Compiles Java source code to bytecode using Java 25.
 **Configuration**: Uses the `maven.compiler.release` property set to Java 25.
 
+### maven-surefire-plugin
+**Version**: 3.5.4
+**Lifecycle Phase**: `test`
+**Purpose**: Runs the JUnit Jupiter tests under `src/test/java`. Pinned so CI does not depend on the default of the runner's Maven version.
+
 ### maven-jar-plugin
 **Version**: 3.4.2
 **Lifecycle Phase**: `package`
