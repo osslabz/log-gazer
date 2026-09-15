@@ -181,12 +181,8 @@ public class LogGazerApp extends Application {
 
         this.searchField = new TextField();
         searchField.setMinWidth(20);
+        searchField.setPromptText(SEARCH_QUERY_PLACEHOLDER);
         searchField.setOnAction(e -> performSearch());
-        searchField.setOnMouseClicked(event -> {
-            if (SEARCH_QUERY_PLACEHOLDER.equals(searchField.getText())) {
-                searchField.setText("");
-            }
-        });
         searchField.setDisable(true);
 
         this.searchButton = new Button("Search");
@@ -264,8 +260,7 @@ public class LogGazerApp extends Application {
         int currentMatchIndex = tabContent.getSearchData().getCurrentMatchIndex();
         int numMatches = tabContent.getSearchData().numMatches();
 
-        searchField.setText(StringUtils.isNotBlank(tabContent.getSearchData().getQuery()) ? tabContent.getSearchData().getQuery() :
-                SEARCH_QUERY_PLACEHOLDER);
+        searchField.setText(tabContent.getSearchData().getQuery());
         matchCountLabel.setText(String.format("%d of %d matches", currentMatchIndex + 1, numMatches));
 
         if (currentMatchIndex >= 0 && currentMatchIndex < numMatches) {
@@ -282,7 +277,7 @@ public class LogGazerApp extends Application {
 
     private void resetSearch() {
 
-        searchField.setText(SEARCH_QUERY_PLACEHOLDER);
+        searchField.clear();
         matchCountLabel.setText("");
     }
 

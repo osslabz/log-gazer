@@ -27,6 +27,7 @@ import static net.osslabz.loggazer.FxTestUtils.callOnFxThread;
 import static net.osslabz.loggazer.FxTestUtils.runOnFxThread;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class LogGazerAppTest {
 
@@ -133,6 +134,17 @@ class LogGazerAppTest {
 
         assertFalse(callOnFxThread(() -> button("◀ Previous").isDisabled()));
         assertFalse(callOnFxThread(() -> button("Next ▶").isDisabled()));
+    }
+
+
+    @Test
+    void searchButtonDoesNothingBeforeQueryIsEntered() throws Exception {
+        open(write("app.log", "2025-01-01 INFO started\n"));
+
+        runOnFxThread(() -> button("Search").fire());
+
+        assertEquals("", callOnFxThread(() -> matchCountLabel().getText()));
+        assertNull(callOnFxThread(() -> this.app.tabContentList.values().iterator().next().getSearchData().getQuery()));
     }
 
 
