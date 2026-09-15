@@ -1,0 +1,80 @@
+2025-12-10T17:13:53.981+01:00  INFO 74130 --- [sandbox-service] [           main] n.o.sandbox.SandboxServiceApplication    : Starting SandboxServiceApplication using Java 25.0.1 with PID 74130 (/Users/xar/Documents/src-rv/osslabz/sandbox-service/target/classes started by xar in /Users/xar/Documents/src-rv/osslabz/sandbox-service)
+2025-12-10T17:13:53.987+01:00  INFO 74130 --- [sandbox-service] [           main] n.o.sandbox.SandboxServiceApplication    : No active profile set, falling back to 1 default profile: "default"
+2025-12-10T17:13:54.017+01:00  INFO 74130 --- [sandbox-service] [           main] .s.b.d.c.l.DockerComposeLifecycleManager : Using Docker Compose file /Users/xar/Documents/src-rv/osslabz/sandbox-service/compose.yml
+2025-12-10T17:13:54.426+01:00  INFO 74130 --- [sandbox-service] [utReader-stderr] o.s.boot.docker.compose.core.DockerCli   :  Container sandbox-service-postgres-1  Starting
+2025-12-10T17:13:54.531+01:00  INFO 74130 --- [sandbox-service] [utReader-stderr] o.s.boot.docker.compose.core.DockerCli   :  Container sandbox-service-postgres-1  Started
+2025-12-10T17:13:54.531+01:00  INFO 74130 --- [sandbox-service] [utReader-stderr] o.s.boot.docker.compose.core.DockerCli   :  Container sandbox-service-postgres-1  Waiting
+2025-12-10T17:13:55.043+01:00  INFO 74130 --- [sandbox-service] [utReader-stderr] o.s.boot.docker.compose.core.DockerCli   :  Container sandbox-service-postgres-1  Healthy
+2025-12-10T17:13:55.972+01:00  INFO 74130 --- [sandbox-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-10T17:13:56.022+01:00  INFO 74130 --- [sandbox-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 44 ms. Found 0 JPA repository interfaces.
+2025-12-10T17:13:56.307+01:00  INFO 74130 --- [sandbox-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8082 (http)
+2025-12-10T17:13:56.314+01:00  INFO 74130 --- [sandbox-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-10T17:13:56.315+01:00  INFO 74130 --- [sandbox-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.49]
+2025-12-10T17:13:56.340+01:00  INFO 74130 --- [sandbox-service] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-10T17:13:56.340+01:00  INFO 74130 --- [sandbox-service] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 943 ms
+2025-12-10T17:13:56.708+01:00  INFO 74130 --- [sandbox-service] [           main] o.f.c.i.resource.ResourceNameValidator   : 2 SQL migrations were detected but not run because they did not follow the filename convention.
+2025-12-10T17:13:56.708+01:00  INFO 74130 --- [sandbox-service] [           main] o.f.c.i.resource.ResourceNameValidator   : Set 'validateMigrationNaming' to true to fail fast and see a list of the invalid file names.
+2025-12-10T17:13:56.711+01:00  INFO 74130 --- [sandbox-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://127.0.0.1:62380/sandbox?ApplicationName=sandbox-service (PostgreSQL 18.0)
+2025-12-10T17:13:56.720+01:00  WARN 74130 --- [sandbox-service] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.0 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 17.
+2025-12-10T17:13:56.739+01:00  INFO 74130 --- [sandbox-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 0 migrations (execution time 00:00.012s)
+2025-12-10T17:13:56.739+01:00  WARN 74130 --- [sandbox-service] [           main] o.f.core.internal.command.DbValidate     : No migrations found. Are your locations set up correctly?
+2025-12-10T17:13:56.770+01:00  INFO 74130 --- [sandbox-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2025-12-10T17:13:56.773+01:00  INFO 74130 --- [sandbox-service] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-12-10T17:13:56.803+01:00  INFO 74130 --- [sandbox-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-10T17:13:56.826+01:00  INFO 74130 --- [sandbox-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@58b03029
+2025-12-10T17:13:56.827+01:00  INFO 74130 --- [sandbox-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-10T17:13:56.849+01:00  INFO 74130 --- [sandbox-service] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-10T17:13:56.880+01:00  INFO 74130 --- [sandbox-service] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.36.Final
+2025-12-10T17:13:56.896+01:00  INFO 74130 --- [sandbox-service] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-10T17:13:57.064+01:00  INFO 74130 --- [sandbox-service] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-10T17:13:57.120+01:00  INFO 74130 --- [sandbox-service] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'proxyDataSourceDecorator [net.ttddyy.dsproxy.support.ProxyDataSource] -> dataSource [com.zaxxer.hikari.HikariDataSource]']
+	Database driver: undefined/unknown
+	Database version: 18.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-12-10T17:13:57.314+01:00  INFO 74130 --- [sandbox-service] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-10T17:13:57.318+01:00  INFO 74130 --- [sandbox-service] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-10T17:13:57.593+01:00  INFO 74130 --- [sandbox-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 15 endpoints beneath base path '/actuator'
+2025-12-10T17:13:57.617+01:00  WARN 74130 --- [sandbox-service] [           main] .s.s.UserDetailsServiceAutoConfiguration :
+
+Using generated security password: 051202fe-df20-492a-a9ab-1b9755fe08df
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-12-10T17:13:57.620+01:00  INFO 74130 --- [sandbox-service] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2025-12-10T17:13:58.016+01:00  INFO 74130 --- [sandbox-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8082 (http) with context path '/'
+2025-12-10T17:13:59.381+01:00  INFO 74130 --- [sandbox-service] [           main] n.o.sandbox.SandboxServiceApplication    : Started SandboxServiceApplication in 5.761 seconds (process running for 6.572)
+2025-12-10T17:13:59.388+01:00  INFO 74130 --- [sandbox-service] [           main] n.o.p.b.l.ApplicationReadyListener       :
+===========================================================================================
+ :: ApplicationReady ::
+===========================================================================================
+ Application [unknown] ready with active profiles [default]
+ ------------------------------------------------------------------------------------------
+ Application Info: Build information not available
+ ------------------------------------------------------------------------------------------
+ Default Timezone: Europe/Berlin
+ ------------------------------------------------------------------------------------------
+ Java VM Name: OpenJDK 64-Bit Server VM
+ ------------------------------------------------------------------------------------------
+ Java VM Version: 25.0.1
+ ------------------------------------------------------------------------------------------
+ Operating System: Mac OS X 15.7.2 (aarch64)
+ ------------------------------------------------------------------------------------------
+ Heap Memory: used=91,19 MB, max=8,00 GB
+ Non-Heap Memory: used=90,09 MB, max=0 B
+ ------------------------------------------------------------------------------------------
+ DB Connection [dataSource]: sandbox on 127.0.0.1:62380 (user: sandbox)
+ ------------------------------------------------------------------------------------------
+ DB Connection Params: ApplicationName=sandbox-service
+ ------------------------------------------------------------------------------------------
+ DB Version: PostgreSQL 18.0 (Debian 18.0-1.pgdg13+3)
+ ------------------------------------------------------------------------------------------
+ Startup Time: 1.645 seconds
+ ------------------------------------------------------------------------------------------
+===========================================================================================
+2025-12-10T17:13:59.738+01:00  INFO 74130 --- [sandbox-service] [-192.168.111.49] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-12-10T17:13:59.738+01:00  INFO 74130 --- [sandbox-service] [-192.168.111.49] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-12-10T17:13:59.741+01:00  INFO 74130 --- [sandbox-service] [-192.168.111.49] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
