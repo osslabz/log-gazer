@@ -26,7 +26,15 @@ public class FileUtils {
 
     private static boolean isValidLogFile(String path) {
         long slashCount = path.chars().filter(ch -> ch == '/').count();
-        return slashCount <= 1; // root level or single subdirectory
+        return slashCount <= 1 // root level or single subdirectory
+                && !isAppleDoubleFile(path);
+    }
+
+
+    // macOS archivers store extended attributes as ._<name> entries next to the real file
+    private static boolean isAppleDoubleFile(String path) {
+        String fileName = path.substring(path.lastIndexOf('/') + 1);
+        return fileName.startsWith("._");
     }
 
 

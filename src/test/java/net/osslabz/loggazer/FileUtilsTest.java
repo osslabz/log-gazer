@@ -27,6 +27,8 @@ class FileUtilsTest {
 
     private static final String LOG_WITHOUT_TRAILING_NEWLINE = "2025-01-01 INFO started\n2025-01-01 ERROR failed";
 
+    private static final String APPLE_DOUBLE_CONTENT = "Mac OS X extended attributes";
+
     @TempDir
     Path tempDir;
 
@@ -97,6 +99,29 @@ class FileUtilsTest {
 
         IOException e = assertThrows(IOException.class, () -> FileUtils.loadFileContent(file));
         assertTrue(e.getMessage().contains("app.log") && e.getMessage().contains("other.log"), e.getMessage());
+    }
+
+
+    @Test
+    void ignoresAppleDoubleEntriesInZip() throws IOException {
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("app.log", LOG);
+        entries.put("__MACOSX/", "");
+        entries.put("__MACOSX/._app.log", APPLE_DOUBLE_CONTENT);
+        File file = write("app.log.zip", zip(entries));
+
+        assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
+    }
+
+
+    @Test
+    void ignoresAppleDoubleEntriesInTarGz() throws IOException {
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("._app.log", APPLE_DOUBLE_CONTENT);
+        entries.put("app.log", LOG);
+        File file = write("app.tar.gz", gzip(tar(entries)));
+
+        assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
 
 
