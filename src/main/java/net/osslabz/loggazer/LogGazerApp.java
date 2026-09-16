@@ -377,9 +377,12 @@ public class LogGazerApp extends Application {
 
         TabPane tabPane = new TabPane();
         // the close button removes the tab from this list too, while removing it in code fires no onClosed
+        // a reorder removes and re-adds the same tab, so only drop content for a tab that is gone for good
         tabPane.getTabs().addListener((ListChangeListener<Tab>) change -> {
             while (change.next()) {
-                change.getRemoved().forEach(tab -> this.tabContentList.remove(tab.getId()));
+                change.getRemoved().stream()
+                        .filter(tab -> !change.getList().contains(tab))
+                        .forEach(tab -> this.tabContentList.remove(tab.getId()));
             }
         });
         tabPane.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {

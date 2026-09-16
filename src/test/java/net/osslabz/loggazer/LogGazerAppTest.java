@@ -189,6 +189,17 @@ class LogGazerAppTest {
     }
 
 
+    @Test
+    void keepsContentOfReorderedTab() throws Exception {
+        Tab first = open(write("first.log", "2025-01-01 INFO started\n"));
+        Tab second = open(write("second.log", "2025-01-01 INFO ready\n"));
+
+        runOnFxThread(() -> tabPane().getTabs().setAll(second, first));
+
+        assertEquals(2, callOnFxThread(() -> this.app.tabContentList.size()));
+    }
+
+
     private File write(String name, String content) throws IOException {
         return Files.writeString(this.tempDir.resolve(name), content).toFile();
     }
