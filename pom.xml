@@ -156,6 +156,7 @@
                                 <arg>-Djava.awt.headless=false</arg>
                             </jvmArgs>
                             <buildArgs>
+                                <buildArg>--enable-native-access=javafx.graphics</buildArg>
                                 <!--        <buildArg>-exact-reachability-metadata</buildArg> supported since Liberica NIK 25 -->
                             </buildArgs>
                         </configuration>

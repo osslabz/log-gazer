@@ -108,6 +108,7 @@ The plugins interact during the Maven build lifecycle in the following sequence:
 - Uses `compile-no-fork` goal
 - Fallback mode disabled (fails if native compilation fails)
 - Sets `-Djava.awt.headless=false` for JavaFX support
+- Passes `--enable-native-access=javafx.graphics` because JavaFX glass loads its native library, which JDK 25 warns about otherwise
 
 This profile builds the binary only. Pass `-Dcreate-os-specific-archive` as well to pack it into an archive.
 
