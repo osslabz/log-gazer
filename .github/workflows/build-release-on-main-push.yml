@@ -53,6 +53,59 @@ jobs:
         # the JavaFX tests need a display, which Linux runners only get from xvfb
         run: ${{ runner.os == 'Linux' && 'xvfb-run -a ' || '' }}mvn --batch-mode -Pnative-graalvm-default-liberica-nik -Dcreate-os-specific-archive clean package
 
+      - id: native-smoke-check
+        # a binary that builds but does not start has shipped before (F-27); catch that before release
+        if: runner.os != 'Windows'
+        run: |
+          ./target/log-gazer --version
+
+          set +e
+          ${{ runner.os == 'Linux' && 'xvfb-run -a ' || '' }}perl -e 'alarm 20; exec @ARGV' ./target/log-gazer > gui-smoke-output.log 2>&1
+          exit_code=$?
+          set -e
+
+          cat gui-smoke-output.log
+
+          if [ $exit_code -ne 142 ]; then
+            echo "log-gazer did not survive the 20s smoke run (exit $exit_code)"
+            exit 1
+          fi
+
+          if grep -q Exception gui-smoke-output.log; then
+            echo "log-gazer GUI output contains an Exception"
+            exit 1
+          fi
+
+      - id: native-smoke-check-windows
+        # a binary that builds but does not start has shipped before (F-27); catch that before release
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          .\target\log-gazer.exe --version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "log-gazer --version exited with code $LASTEXITCODE"
+            exit 1
+          }
+
+          $process = Start-Process -FilePath .\target\log-gazer.exe -PassThru -RedirectStandardOutput gui-smoke-output.log -RedirectStandardError gui-smoke-error.log
+          Start-Sleep -Seconds 20
+
+          if ($process.HasExited) {
+            Get-Content gui-smoke-output.log, gui-smoke-error.log -ErrorAction SilentlyContinue
+            Write-Error "log-gazer exited on its own with code $($process.ExitCode)"
+            exit 1
+          }
+
+          Stop-Process -Id $process.Id -Force
+
+          $output = Get-Content gui-smoke-output.log, gui-smoke-error.log -ErrorAction SilentlyContinue
+          $output | Write-Output
+
+          if ($output -match 'Exception') {
+            Write-Error "log-gazer GUI output contains an Exception"
+            exit 1
+          }
+
       - id: configure-git-user
         uses: qoomon/actions--setup-git@v1
         with:
