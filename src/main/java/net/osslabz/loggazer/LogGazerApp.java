@@ -511,9 +511,13 @@ public class LogGazerApp extends Application {
     }
 
 
-    private static void disableLogging() {
+    static void disableLogging() {
 
         ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         rootLogger.setLevel(Level.OFF);
+
+        // LogbackConfigurator sets this logger to DEBUG explicitly, which outranks the root level
+        ch.qos.logback.classic.Logger appLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("net.osslabz.loggazer");
+        appLogger.setLevel(Level.OFF);
     }
 }
