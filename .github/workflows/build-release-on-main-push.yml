@@ -32,7 +32,8 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get -y install libxtst-dev libharfbuzz-dev libgtk-3-dev libpango1.0-dev libatk1.0-dev libgl1-mesa-dev libx11-dev libfreetype6-dev libfontconfig1-dev
+          # dev packages alone don't ship the runtime GL driver; libgl1-mesa-dri/libglx-mesa0 give Xvfb a working GLX pipeline
+          sudo apt-get -y install libxtst-dev libharfbuzz-dev libgtk-3-dev libpango1.0-dev libatk1.0-dev libgl1-mesa-dev libx11-dev libfreetype6-dev libfontconfig1-dev libgl1-mesa-dri libglx-mesa0
 
       - id: setup-graalvm
         uses: graalvm/setup-graalvm@v1
@@ -65,7 +66,8 @@ jobs:
           fi
 
           set +e
-          ${{ runner.os == 'Linux' && 'xvfb-run -a ' || '' }}perl -e 'alarm 20; exec @ARGV' ./target/log-gazer > gui-smoke-output.log 2>&1
+          # LIBGL_ALWAYS_SOFTWARE forces the llvmpipe GLX path under Xvfb; -Dprism.verbose logs which pipelines JavaFX tries so a future failure says why
+          LIBGL_ALWAYS_SOFTWARE=1 ${{ runner.os == 'Linux' && 'xvfb-run -a ' || '' }}perl -e 'alarm 20; exec @ARGV' ./target/log-gazer -Dprism.verbose=true > gui-smoke-output.log 2>&1
           exit_code=$?
           set -e
 
