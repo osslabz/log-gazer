@@ -4,7 +4,7 @@ This document explains the Maven build configuration for log-gazer, detailing th
 
 ## Prerequisites
 
-- **JDK 25** (Temurin or Liberica NIK for native builds)
+- **JDK 21** (Temurin or Liberica NIK for native builds)
 - **Maven 3.9+**
 
 ## Build Extensions
@@ -21,14 +21,14 @@ The following plugins are configured in the main build section and run during st
 ### maven-compiler-plugin
 **Version**: 3.13.0
 **Lifecycle Phase**: `compile`
-**Purpose**: Compiles Java source code to bytecode using Java 25.
-**Configuration**: Uses the `maven.compiler.release` property set to Java 25.
+**Purpose**: Compiles Java source code to bytecode using Java 21.
+**Configuration**: Uses the `maven.compiler.release` property set to Java 21.
 
 ### maven-surefire-plugin
 **Version**: 3.5.4
 **Lifecycle Phase**: `test`
 **Purpose**: Runs the JUnit Jupiter tests under `src/test/java`. Pinned so CI does not depend on the default of the runner's Maven version.
-**Configuration**: `--illegal-native-access=allow`, because the JavaFX tests load native libraries. Those tests start the real JavaFX toolkit and open windows, so they need a display; CI runs Maven under `xvfb-run` on Linux.
+**Configuration**: The JavaFX tests start the real JavaFX toolkit and open windows, so they need a display; CI runs Maven under `xvfb-run` on Linux.
 
 ### maven-jar-plugin
 **Version**: 3.4.2
@@ -58,7 +58,7 @@ The plugins interact during the Maven build lifecycle in the following sequence:
 ```
 1. COMPILE PHASE
    └─> maven-compiler-plugin
-       └─> Compiles Java sources (Java 25)
+       └─> Compiles Java sources (Java 21)
 
 2. PACKAGE PHASE
    ├─> maven-jar-plugin
@@ -108,7 +108,8 @@ The plugins interact during the Maven build lifecycle in the following sequence:
 - Uses `compile-no-fork` goal
 - Fallback mode disabled (fails if native compilation fails)
 - Sets `-Djava.awt.headless=false` for JavaFX support
-- Passes `--enable-native-access=javafx.graphics` because JavaFX glass loads its native library, which JDK 25 warns about otherwise
+- Passes `--enable-native-access=javafx.graphics`: JDK 24 and later warn when JavaFX glass loads its native library. JDK 21 does not warn, and its native-image accepts the flag.
+- `src/main/resources/META-INF/native-image/net.osslabz/log-gazer/resource-config.json` registers the logback version properties in the legacy schema, because Liberica NIK 21 does not honor those two entries from `reachability-metadata.json`
 
 This profile builds the binary only. Pass `-Dcreate-os-specific-archive` as well to pack it into an archive.
 
@@ -163,7 +164,7 @@ Prepares and performs a release using conventional commits for versioning.
 
 ## Key Properties
 
-- `osslabz.java.version`: 25
+- `osslabz.java.version`: 21
 - `mainClass`: net.osslabz.loggazer.LogGazerApp (native image, `javafx:run`)
 - `jarMainClass`: net.osslabz.loggazer.AppStarter (JAR manifests)
 - `project.build.outputTimestamp`: 2024-12-02T20:20:06Z (for reproducible builds)
