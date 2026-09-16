@@ -223,6 +223,8 @@ public class LogGazerApp extends Application {
 
         String searchTerm = searchField.getText();
         if (searchTerm.isEmpty()) {
+            currentTabContent.updateSearch(searchTerm, List.of());
+            matchCountLabel.setText("");
             toggleSearchButtons(false);
             return;
         }

@@ -29,7 +29,6 @@ import static net.osslabz.loggazer.FxTestUtils.callOnFxThread;
 import static net.osslabz.loggazer.FxTestUtils.runOnFxThread;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class LogGazerAppTest {
 
@@ -146,7 +145,7 @@ class LogGazerAppTest {
         runOnFxThread(() -> button("Search").fire());
 
         assertEquals("", callOnFxThread(() -> matchCountLabel().getText()));
-        assertNull(callOnFxThread(() -> this.app.tabContentList.values().iterator().next().getSearchData().getQuery()));
+        assertEquals("", callOnFxThread(() -> this.app.tabContentList.values().iterator().next().getSearchData().getQuery()));
     }
 
 
@@ -161,6 +160,22 @@ class LogGazerAppTest {
 
         assertEquals(List.of(List.of()), callOnFxThread(
                 () -> selectedCodeArea().getStyleSpans(0, selectedCodeArea().getLength()).stream().map(StyleSpan::getStyle).toList()));
+    }
+
+
+    @Test
+    void clearsMatchLabelWhenSearchFieldIsEmptied() throws Exception {
+        open(write("app.log", "2025-01-01 INFO started\n2025-01-01 INFO ready\n"));
+
+        runOnFxThread(() -> {
+            searchField().setText("INFO");
+            button("Search").fire();
+            searchField().clear();
+            button("Search").fire();
+        });
+
+        assertEquals("", callOnFxThread(() -> matchCountLabel().getText()));
+        assertEquals(-1, callOnFxThread(() -> this.app.tabContentList.values().iterator().next().getSearchData().getCurrentMatchIndex()));
     }
 
 
