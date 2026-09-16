@@ -335,6 +335,9 @@ public class LogGazerApp extends Application {
                 codeArea.replaceText(originalContent);
             }
 
+            // replaceText drops the styling, so the toggle must forget it was marked
+            selectedTabContent.setLogLevelMarked(false);
+
             // match positions refer to the replaced text
             String query = selectedTabContent.getSearchData().getQuery();
             if (query != null) {

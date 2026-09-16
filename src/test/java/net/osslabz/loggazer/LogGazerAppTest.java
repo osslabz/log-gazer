@@ -29,6 +29,7 @@ import static net.osslabz.loggazer.FxTestUtils.callOnFxThread;
 import static net.osslabz.loggazer.FxTestUtils.runOnFxThread;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LogGazerAppTest {
 
@@ -160,6 +161,21 @@ class LogGazerAppTest {
 
         assertEquals(List.of(List.of()), callOnFxThread(
                 () -> selectedCodeArea().getStyleSpans(0, selectedCodeArea().getLength()).stream().map(StyleSpan::getStyle).toList()));
+    }
+
+
+    @Test
+    void keepsMarkedFlagInSyncAfterFormattingJson() throws Exception {
+        open(write("app.log", "{\"level\":\"INFO\",\"message\":\"first\"}\n{\"level\":\"INFO\",\"message\":\"second\"}\n"));
+
+        runOnFxThread(() -> {
+            button("Mark Log Level").fire();
+            button("Format JSON").fire();
+            button("Mark Log Level").fire();
+        });
+
+        assertTrue(callOnFxThread(() -> selectedCodeArea().getStyleSpans(0, selectedCodeArea().getLength()).stream()
+                .map(StyleSpan::getStyle).anyMatch(style -> !style.isEmpty())));
     }
 
 
