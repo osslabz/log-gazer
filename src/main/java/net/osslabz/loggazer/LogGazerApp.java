@@ -31,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
-import org.fxmisc.richtext.model.StyleSpans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,6 @@ import java.awt.Taskbar;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -357,16 +355,17 @@ public class LogGazerApp extends Application {
                 return;
             }
 
-            CodeArea codeArea = tabContentList.get(selectedTab.getId()).getCodeArea();
+            TabContent tabContent = tabContentList.get(selectedTab.getId());
+            CodeArea codeArea = tabContent.getCodeArea();
 
             String currentText = codeArea.getText();
-            StyleSpans<Collection<String>> currentStyleSpans = codeArea.getStyleSpans(0, currentText.length());
 
-            if (currentStyleSpans.getSpanCount() <= 1) {
-                codeArea.setStyleSpans(0, Highlighter.highlightLogLevel(currentText));
-            } else {
+            if (tabContent.isLogLevelMarked()) {
                 codeArea.setStyleSpans(0, Highlighter.computeEmptyStyle(currentText));
+            } else {
+                codeArea.setStyleSpans(0, Highlighter.highlightLogLevel(currentText));
             }
+            tabContent.setLogLevelMarked(!tabContent.isLogLevelMarked());
         });
         return button;
     }

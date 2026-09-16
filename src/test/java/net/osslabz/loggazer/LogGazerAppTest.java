@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import javafx.collections.ListChangeListener;
@@ -17,6 +18,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.model.StyleSpan;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -145,6 +147,20 @@ class LogGazerAppTest {
 
         assertEquals("", callOnFxThread(() -> matchCountLabel().getText()));
         assertNull(callOnFxThread(() -> this.app.tabContentList.values().iterator().next().getSearchData().getQuery()));
+    }
+
+
+    @Test
+    void marksAndUnmarksLogLevelOnSingleLevelLog() throws Exception {
+        open(write("app.log", "2025-01-01 INFO started\n2025-01-01 INFO ready\n"));
+
+        runOnFxThread(() -> {
+            button("Mark Log Level").fire();
+            button("Mark Log Level").fire();
+        });
+
+        assertEquals(List.of(List.of()), callOnFxThread(
+                () -> selectedCodeArea().getStyleSpans(0, selectedCodeArea().getLength()).stream().map(StyleSpan::getStyle).toList()));
     }
 
 

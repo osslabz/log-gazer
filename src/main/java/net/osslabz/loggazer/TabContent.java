@@ -16,6 +16,8 @@ public class TabContent {
 
     private final SearchData searchData;
 
+    private boolean logLevelMarked;
+
 
     public TabContent(File file, String originalContent, CodeArea codeArea) {
 
@@ -31,6 +33,18 @@ public class TabContent {
         this.searchData.setQuery(query);
         this.searchData.setMatches(matches);
         this.searchData.setCurrentMatchIndex(matches.isEmpty() ? -1 : 0);
+    }
+
+
+    public boolean isLogLevelMarked() {
+
+        return logLevelMarked;
+    }
+
+
+    public void setLogLevelMarked(boolean logLevelMarked) {
+
+        this.logLevelMarked = logLevelMarked;
     }
 
 
