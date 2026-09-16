@@ -179,6 +179,16 @@ class LogGazerAppTest {
     }
 
 
+    @Test
+    void resetsWindowTitleWhenLastTabCloses() throws Exception {
+        Tab tab = open(write("app.log", "2025-01-01 INFO started\n"));
+
+        runOnFxThread(() -> tabPane().getTabs().remove(tab));
+
+        assertEquals("Log Gazer", callOnFxThread(() -> this.stage.getTitle()));
+    }
+
+
     private File write(String name, String content) throws IOException {
         return Files.writeString(this.tempDir.resolve(name), content).toFile();
     }

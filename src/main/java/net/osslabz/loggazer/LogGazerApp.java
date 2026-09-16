@@ -404,6 +404,7 @@ public class LogGazerApp extends Application {
                     primaryStage.setTitle(LOG_GAZER + " - " + nv.getText());
                 }
             } else {
+                primaryStage.setTitle(LOG_GAZER);
                 enableButtons(false);
                 resetSearch();
             }
