@@ -82,6 +82,8 @@ public class WindowUtils {
 
 
     protected static void moveToPrimaryScreen(Stage stage) {
+        // a maximized window would keep covering the old screen, whatever bounds are set here
+        stage.setMaximized(false);
         Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
         stage.setX(bounds.getMinX() + MARGIN);
         stage.setY(bounds.getMinY() + MARGIN);
