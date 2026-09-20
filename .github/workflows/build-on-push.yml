@@ -9,6 +9,10 @@ jobs:
   build-on-push:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -20,9 +24,22 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: maven-build-verify
+      # After setup-jdk, which keys its Maven cache on the poms' contents: rewriting them
+      # first would miss that cache on every branch but dev.
+      - name: set-snapshot-version
+        uses: osslabz/github-actions/snapshot-version@v1
+        with:
+          default-branch: dev
+
+      # This one publishes to GitHub Packages rather than Central, so every branch publishes:
+      # the Central limits that keep the other osslabz repos to dev do not apply here.
+      # Dependabot's runs get a read-only token, so they verify instead.
+      - name: maven-build-publish
         # the JavaFX tests need a display
-        run: xvfb-run -a mvn --batch-mode --update-snapshots verify
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_GOAL: ${{ github.actor == 'dependabot[bot]' && 'verify' || 'deploy' }}
+        run: xvfb-run -a mvn --batch-mode --update-snapshots "$MAVEN_GOAL"
 
       - name: shaded-jar-version
         run: java -jar target/log-gazer-*.jar --version
