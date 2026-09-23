@@ -16,6 +16,15 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
+        with:
+          # Full history: the gate below refuses a shallow clone, because it would end the
+          # pushed range at the clone's depth.
+          fetch-depth: 0
+
+      - name: check-commit-subjects
+        uses: osslabz/github-actions/commit-subject-check@v1
+        with:
+          default-branch: dev
 
       - name: setup-jdk
         uses: actions/setup-java@v4
