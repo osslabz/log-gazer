@@ -14,9 +14,16 @@ This document explains the Maven build configuration for log-gazer, detailing th
 **Purpose**: Detects the operating system and architecture at build time, setting the `os.detected.classifier` property.
 **Usage**: The detected classifier is used by platform-specific assembly profiles to name distribution packages.
 
+## Pinned Lifecycle Plugins
+
+`pluginManagement` pins maven-clean-plugin 3.5.0, maven-resources-plugin 3.5.0,
+maven-surefire-plugin 3.5.4, maven-install-plugin 3.2.0 and maven-deploy-plugin 3.2.0. Maven binds
+these by itself with versions that come from the Maven running the build, and Debian's Maven binds
+surefire 2.17, which finds no JUnit 5 tests.
+
 ## Core Build Plugins
 
-The following plugins are configured in the main build section and run during standard Maven lifecycle phases.
+The following plugins run during the build; most are bound to a standard Maven lifecycle phase.
 
 ### maven-compiler-plugin
 **Version**: 3.13.0
@@ -25,7 +32,7 @@ The following plugins are configured in the main build section and run during st
 **Configuration**: Uses the `maven.compiler.release` property set to Java 21.
 
 ### maven-surefire-plugin
-**Version**: 3.5.4
+**Version**: 3.5.4 (pinned in `pluginManagement`)
 **Lifecycle Phase**: `test`
 **Purpose**: Runs the JUnit Jupiter tests under `src/test/java`. Pinned so CI does not depend on the default of the runner's Maven version.
 **Configuration**: The JavaFX tests start the real JavaFX toolkit and open windows, so they need a display; CI runs Maven under `xvfb-run` on Linux.
