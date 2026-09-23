@@ -54,7 +54,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_GOAL: ${{ github.actor == 'dependabot[bot]' && 'verify' || 'deploy' }}
-        run: xvfb-run -a mvn --batch-mode --update-snapshots "$MAVEN_GOAL"
+        run: xvfb-run -a ./mvnw --batch-mode --update-snapshots -Dmaven.install.skip=true "$MAVEN_GOAL"
 
       - name: shaded-jar-version
         run: java -jar target/log-gazer-*.jar --version
