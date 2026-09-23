@@ -14,12 +14,12 @@ jobs:
       packages: write
 
     steps:
+      # Full history for commit-subject-check. No persisted token: nothing in the build pushes.
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Full history: the gate below refuses a shallow clone, because it would end the
-          # pushed range at the clone's depth.
           fetch-depth: 0
+          persist-credentials: false
 
       - name: check-commit-subjects
         uses: osslabz/github-actions/commit-subject-check@v1
@@ -27,11 +27,17 @@ jobs:
           default-branch: dev
 
       - name: setup-jdk
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
+          # On JDK 24+ Liberica NIK reports the image as dynamically linked, so AWT loads
+          # libawt_lwawt.dylib next to the binary and the macOS app dies on start (F-27).
+          # The release builds with NIK 21, and this build stays with it.
           java-version: 21
           distribution: 'temurin'
           cache: maven
+          # A Dependabot branch's poms miss the cache, and the entry it would save is readable
+          # from that branch only.
+          cache-read-only: ${{ startsWith(github.ref_name, 'dependabot/') }}
 
       # After setup-jdk, which keys its Maven cache on the poms' contents: rewriting them
       # first would miss that cache on every branch but dev.
