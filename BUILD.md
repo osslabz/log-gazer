@@ -4,7 +4,10 @@ This document explains the Maven build configuration for log-gazer, detailing th
 
 ## Prerequisites
 
-- **JDK 21** (Temurin or Liberica NIK for native builds)
+- **JDK 21** (Temurin or Liberica NIK for native builds). Not a later one: on JDK 24+ Liberica
+  NIK reports the image as dynamically linked, so AWT loads `libawt_lwawt.dylib` next to the
+  binary and the macOS app dies on start (F-27). JavaFX stays on the 21 line for the same
+  reason; its 25 class files need Java 23+.
 - **Maven 3.9+**
 
 ## Build Extensions
@@ -53,6 +56,14 @@ The following plugins run during the build; most are bound to a standard Maven l
 - Transforms the manifest to include the main class
 - Produces a single executable JAR with all dependencies
 
+### maven-release-plugin
+**Version**: 3.3.1
+**Lifecycle Phase**: none; invoked by the release workflow.
+**Purpose**: Derives the next version from the conventional commit subjects since the last tag
+(`conventional-commits-version-policy` 1.0.9), commits it, tags it `x.y.z` and pushes, then
+leaves `dev` on the next snapshot. Release commits read like every other commit
+(`chore(release): …`). `release:perform` is not used.
+
 ### javafx-maven-plugin
 **Version**: 0.0.8
 **Purpose**: Provides JavaFX-specific build and run capabilities.
@@ -88,20 +99,6 @@ The plugins interact during the Maven build lifecycle in the following sequence:
 ```
 
 ## Profiles
-
-### osslabz-release
-
-#### maven-release-plugin
-**Version**: 3.1.1
-**Purpose**: Manages the release process with conventional commits versioning.
-**Key Features**:
-- Uses `ConventionalCommitsVersionPolicy` for semantic versioning
-- Automatically determines version bumps from commit messages
-- Tags releases with version numbers
-- Executes deployment on release
-
-**Dependencies**:
-- `conventional-commits-version-policy`: 1.0.7
 
 ### native-graalvm-default-liberica-nik
 
@@ -146,28 +143,39 @@ These profiles activate when `-Dcreate-os-specific-archive` is passed on the com
 
 ### Standard Build (uber JAR)
 ```bash
-mvn clean package
+./mvnw clean package
 ```
 Compiles the code and creates both the regular JAR and uber JAR.
 
 ### Native Image Build
 ```bash
-mvn clean package -Pnative-graalvm-default-liberica-nik -Dcreate-os-specific-archive
+./mvnw clean package -Pnative-graalvm-default-liberica-nik -Dcreate-os-specific-archive
 ```
 Builds a native executable using GraalVM (requires Liberica NIK) and packs it into a platform-specific archive (`.zip` on Windows, `.tar.gz` on Linux/macOS). This is the command the release workflow runs. Leave out `-Dcreate-os-specific-archive` to build only the binary.
 
 ### Run with JavaFX Plugin
 ```bash
-mvn javafx:run
+./mvnw javafx:run
 ```
 Runs the application using the JavaFX Maven plugin.
 
-### Release Process
+### Release
+
+A release is dispatched on `dev` (Actions -> release -> Run workflow, optionally with an
+explicit `releaseVersion`). The workflow runs `release:prepare`, which verifies the build,
+commits and tags the version and pushes `dev`; four runners then build the native binary from
+that tag and smoke-test it with `--version`; the GitHub release is created with all four
+archives once every leg has uploaded one; finally `main` fast-forwards to the tag. No Maven
+artifact is released: `release:perform` never runs.
+
+If a native leg fails, the tag and version commits are already pushed but `build-next-snapshot`
+never runs: publish the next snapshot by dispatching `build-on-push` on `dev` by hand.
+
+Rehearse the version locally, without touching the remote:
+
 ```bash
-mvn release:prepare -Posslabz-release
-mvn release:perform -Posslabz-release
+./mvnw -B release:prepare -DdryRun=true -Darguments=-DskipTests
 ```
-Prepares and performs a release using conventional commits for versioning.
 
 ## Key Properties
 

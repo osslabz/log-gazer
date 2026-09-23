@@ -1,0 +1,274 @@
+name: release
+
+# Releases log-gazer from dev: the version commits and the tag, one native binary per platform
+# built from that tag, the GitHub release carrying them, and main fast-forwarded to the tag.
+# osslabz/github-actions release.yml cannot run the native matrix (final review I5), so its
+# guard, preflight, released-tag, fast-forward and dispatch are copied here; that repository's
+# README gives the reason for each of those steps.
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: Overrides the version the commit subjects imply (x.y.z). Empty keeps it.
+        required: false
+        type: string
+
+# A second dispatch waits for this one rather than racing it to the push. Workflow-wide, not per
+# job, so two releases cannot interleave their native legs.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write
+
+    outputs:
+      tag: ${{ steps.released-tag.outputs.tag }}
+
+    steps:
+      # workflow_dispatch has no branch filter; a failing step rather than a job-level `if`,
+      # which would report a mis-dispatch as a green skip.
+      - name: guard-release-ref
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/dev" ]; then
+            echo "::error::releases run on dev only; this run was dispatched from $GITHUB_REF"
+            exit 1
+          fi
+
+      # No `ref`: maven-scm pushes the release commits to the branch checked out, which is dev.
+      # Full history and tags for the version policy and the preflight. Credentials persist:
+      # release:prepare pushes through them.
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # Everything that would otherwise fail only after the tag is public. Copied from
+      # release.yml@v1 without its publish-target and secret checks: this release deploys no
+      # Maven artifact and holds no signing key.
+      - name: preflight
+        env:
+          RELEASE_VERSION: ${{ inputs.releaseVersion }}
+        run: |
+          # A second dispatch, queued behind this one by the concurrency group, checks out the
+          # SHA dev was at when IT was dispatched -- not this run's result -- so it cannot see
+          # that dev has already moved. Caught here, before the build, rather than surfacing
+          # much later as a push failure inside release:prepare.
+          remote_dev="$(git ls-remote origin refs/heads/dev | cut -f1)"
+          if [ "$remote_dev" != "$(git rev-parse HEAD)" ]; then
+            echo "::error::dev moved since this run was dispatched; dispatch again"
+            exit 1
+          fi
+
+          if [ -n "$RELEASE_VERSION" ]; then
+            if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::release-version '${RELEASE_VERSION}' is not x.y.z"
+              exit 1
+            fi
+            if git rev-parse --verify --quiet "refs/tags/${RELEASE_VERSION}" > /dev/null; then
+              echo "::error::tag ${RELEASE_VERSION} already exists"
+              exit 1
+            fi
+          fi
+
+          # A release leaves exactly one commit after its tag, the next development version.
+          last_tag="$(git describe --tags --abbrev=0 --match '[0-9]*.[0-9]*.[0-9]*' 2> /dev/null || true)"
+          if [ -n "$last_tag" ] && [ "$(git rev-list --no-merges --count "${last_tag}..HEAD")" -le 1 ]; then
+            echo "::error::nothing to release: no commit since ${last_tag} but the next development version"
+            exit 1
+          fi
+
+          if git rev-parse --verify --quiet refs/remotes/origin/main > /dev/null; then
+            if ! git merge-base --is-ancestor refs/remotes/origin/main HEAD; then
+              echo "::error::main is not an ancestor of dev, so it cannot fast-forward to the release"
+              exit 1
+            fi
+            if [ -n "$(git rev-list --merges refs/remotes/origin/main..HEAD)" ]; then
+              echo "::error::dev has merge commits main lacks, and main's linear-history rule refuses them. A repository admin fast-forwards main to dev once, then dispatches again: git fetch origin && git push origin $(git rev-parse HEAD):refs/heads/main"
+              exit 1
+            fi
+          fi
+
+      - name: setup-jdk
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          # The native legs build with Liberica NIK 21 (F-27), and this build verifies the tag
+          # they build, so both run on 21.
+          java-version: 21
+          distribution: 'temurin'
+          cache: maven
+
+      # The identity checkout documents for commits made with the built-in token.
+      - name: configure-git-user
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      # release:prepare forks `clean verify`, whose JavaFX tests open real windows, so the whole
+      # run is under xvfb. That forked build is the only verification before the tag is pushed.
+      # release:perform is not used: the release ships binaries, not a Maven artifact.
+      - name: release-prepare
+        env:
+          RELEASE_VERSION: ${{ inputs.releaseVersion }}
+        run: |
+          args=(--batch-mode)
+          if [ -n "$RELEASE_VERSION" ]; then
+            args+=("-DreleaseVersion=${RELEASE_VERSION}")
+          fi
+          if [ -x ./mvnw ]; then maven=./mvnw; else maven=mvn; fi
+          xvfb-run -a "$maven" "${args[@]}" release:prepare
+
+      # release:prepare leaves HEAD on the next development version, one commit after the tag.
+      - name: released-tag
+        id: released-tag
+        run: |
+          tag="$(git describe --tags --exact-match HEAD~1)"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+  native:
+    needs: prepare-release
+    strategy:
+      # A failing leg leaves the others to finish: the tag is already pushed, so a flaky runner
+      # costs one re-run of that leg, not the whole matrix.
+      fail-fast: false
+      matrix:
+        # macos-15 is aarch_64, macos-15-intel is x86_64. GitHub ends macos-15-intel in August 2027.
+        os: [macos-15, macos-15-intel, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    # The slowest leg measured 7 m 5 s (macos-15-intel, run 35081586000).
+    timeout-minutes: 20
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # The tag, not dev: the binaries must come from the commit the release names. Shallow is
+      # enough, nothing in this build reads history.
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare-release.outputs.tag }}
+          persist-credentials: false
+
+      - name: install-libs
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install libxtst-dev libharfbuzz-dev libgtk-3-dev libpango1.0-dev libatk1.0-dev libgl1-mesa-dev libx11-dev libfreetype6-dev libfontconfig1-dev
+
+      # No `cache: maven`: the tag pom carries a unique version, so the key never hits, and the
+      # two macOS legs would share one key with no architecture in it (ci-audit 2.5).
+      - name: setup-graalvm
+        uses: graalvm/setup-graalvm@0426e2e191540e8514dff98dc52a5f5146a2a276 # v1.6.6
+        with:
+          distribution: 'liberica'
+          # On JDK 24+ Liberica NIK reports the image as dynamically linked, so AWT loads
+          # libawt_lwawt.dylib next to the binary and the macOS app dies on start (F-27).
+          java-version: '21'
+          java-package: 'jdk+fx'
+
+      - name: show-paths
+        run: |
+          echo "GRAALVM_HOME: $GRAALVM_HOME"
+          echo "JAVA_HOME: $JAVA_HOME"
+          java --version
+          if [ "$RUNNER_OS" = Windows ]; then "$GRAALVM_HOME/bin/native-image.cmd" --version; else native-image --version; fi
+
+      - name: maven-build-verify
+        run: |
+          if [ -x ./mvnw ]; then maven=(./mvnw); else maven=(mvn); fi
+          # the JavaFX tests need a display, which Linux runners only get from xvfb
+          if [ "$RUNNER_OS" = Linux ]; then maven=(xvfb-run -a "${maven[@]}"); fi
+          "${maven[@]}" --batch-mode --no-transfer-progress -Pnative-graalvm-default-liberica-nik -Dcreate-os-specific-archive clean package
+
+      # A binary that builds but does not start has shipped before (F-27); catch that before the
+      # release exists. No platform starts the GUI here: CI runners have no GPU, and the image's
+      # software pipeline doesn't initialise either, so the GUI start is verified on a developer
+      # machine instead.
+      - name: native-smoke-check
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then binary=./target/log-gazer.exe; else binary=./target/log-gazer; fi
+          "$binary" --version
+
+      # The archives wait here until every leg has one, so the release never appears with a
+      # platform missing.
+      - name: upload-archive
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: archive-${{ matrix.os }}
+          path: |
+            target/log-gazer*.tar.gz
+            target/log-gazer*.zip
+          if-no-files-found: error
+
+  github-release:
+    needs: [prepare-release, native]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: write
+
+    steps:
+      # Before download-archive: checkout cleans the workspace. Full history and tags for the
+      # fast-forward below, and its token pushes main.
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: download-archives
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: archives
+          pattern: archive-*
+          merge-multiple: true
+
+      # --verify-tag: fails rather than creating the tag if the pushed one is missing. A
+      # re-run after a failed leg finds the release already created by the first attempt, so
+      # it uploads to it instead of failing on "release already exists".
+      - name: create-github-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.prepare-release.outputs.tag }}
+        run: |
+          gh release view "$TAG" > /dev/null 2>&1 || gh release create "$TAG" --verify-tag --generate-notes --title "$TAG"
+          gh release upload "$TAG" --clobber archives/*
+
+      # main only follows the published tag, and without --force git accepts nothing but a
+      # fast-forward. The tag is annotated and a branch cannot point at a tag object. Last, so
+      # main never runs ahead of a release whose assets failed to attach.
+      - name: fast-forward-main
+        env:
+          TAG: ${{ needs.prepare-release.outputs.tag }}
+        run: |
+          tag_commit="$(git rev-parse "refs/tags/${TAG}^{commit}")"
+          git push origin "${tag_commit}:refs/heads/main"
+
+  # The release pushed dev with GITHUB_TOKEN, which starts no push run, so the next snapshot is
+  # built on request. A job of its own, so the Maven build never holds `actions: write`.
+  build-next-snapshot:
+    needs: github-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    permissions:
+      actions: write
+
+    steps:
+      - name: dispatch-build-on-push
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run build-on-push.yml --ref dev

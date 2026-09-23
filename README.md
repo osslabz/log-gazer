@@ -2,7 +2,7 @@
 
 ![GitHub](https://img.shields.io/github/license/osslabz/log-gazer)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/osslabz/log-gazer/build-on-push.yml?branch=dev&label=build&logo=git)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/osslabz/log-gazer/build-release-on-main-push.yml?branch=main&label=perform-release&logo=semanticrelease)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/osslabz/log-gazer/release.yml?branch=dev&label=release&logo=semanticrelease)
 [![GitHub Release](https://img.shields.io/github/v/release/osslabz/log-gazer)](https://github.com/osslabz/log-gazer/releases/latest)
 ![GitHub Downloads](https://img.shields.io/github/downloads/osslabz/log-gazer/total)
 
