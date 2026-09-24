@@ -98,7 +98,7 @@ public final class Highlighter {
                     numSegmentsClosed);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Couldn't read the text to highlight", e);
         }
 
         return spansBuilder.create();
@@ -145,7 +145,7 @@ public final class Highlighter {
                 spansBuilder.add(styles, line.length() + 1);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Couldn't read the text to highlight", e);
         }
 
         return spansBuilder.create();
