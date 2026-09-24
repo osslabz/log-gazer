@@ -5,7 +5,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-public class WindowUtils {
+public final class WindowUtils {
 
     private static final String PREFS_X = "windowX";
     private static final String PREFS_Y = "windowY";
@@ -23,7 +23,7 @@ public class WindowUtils {
         // intentionally empty
     }
 
-    protected static void resizeAndPosition(Stage stage) {
+    static void resizeAndPosition(Stage stage) {
         Platform.runLater(() -> {
 
             // We'll leave the initial position to the OS
@@ -64,7 +64,7 @@ public class WindowUtils {
         return UserPreferences.getDouble(PREFS_X, -1);
     }
 
-    protected static boolean isWindowIsOutOfBounds(Stage stage) {
+    static boolean isWindowIsOutOfBounds(Stage stage) {
         for (Screen screen : Screen.getScreens()) {
             Rectangle2D bounds = screen.getVisualBounds();
             if (stage.getX() + stage.getWidth() - MINIMUM_VISIBLE_WIDTH >= bounds.getMinX()
@@ -78,7 +78,7 @@ public class WindowUtils {
         return true;
     }
 
-    protected static void moveToPrimaryScreen(Stage stage) {
+    static void moveToPrimaryScreen(Stage stage) {
         // a maximized window would keep covering the old screen, whatever bounds are set here
         stage.setMaximized(false);
         Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
@@ -88,7 +88,7 @@ public class WindowUtils {
         stage.setHeight(DEFAULT_HEIGHT);
     }
 
-    protected static void saveWindowState(Stage stage) {
+    static void saveWindowState(Stage stage) {
         UserPreferences.putDouble(PREFS_X, stage.getX());
         UserPreferences.putDouble(PREFS_Y, stage.getY());
         UserPreferences.putDouble(PREFS_WIDTH, stage.getWidth());

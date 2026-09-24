@@ -2,7 +2,7 @@ package net.osslabz.loggazer;
 
 import java.util.prefs.Preferences;
 
-public class UserPreferences {
+public final class UserPreferences {
 
     private UserPreferences() {
         // intentionally empty

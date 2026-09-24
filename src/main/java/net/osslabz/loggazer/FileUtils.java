@@ -17,7 +17,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
-public class FileUtils {
+public final class FileUtils {
 
     private FileUtils() {
         // intentionally empty

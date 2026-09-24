@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.fxmisc.richtext.CodeArea;
 
-public class SearchUtils {
+public final class SearchUtils {
 
     private SearchUtils() {
         // intentionally empty

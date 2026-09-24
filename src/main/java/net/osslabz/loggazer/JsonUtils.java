@@ -9,7 +9,7 @@ import java.io.StringReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JsonUtils {
+public final class JsonUtils {
 
     private static final Logger log = LoggerFactory.getLogger(JsonUtils.class);
 

@@ -14,7 +14,7 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Highlighter {
+public final class Highlighter {
 
     public static final Logger log = LoggerFactory.getLogger(Highlighter.class);
 
