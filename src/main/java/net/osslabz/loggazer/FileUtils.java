@@ -61,7 +61,7 @@ public class FileUtils {
         try (FileInputStream fis = new FileInputStream(file);
                 BufferedInputStream bis = new BufferedInputStream(fis);
                 GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(gzis))) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(gzis, StandardCharsets.UTF_8))) {
             return reader.lines().collect(Collectors.joining("\n"));
         }
     }
@@ -94,7 +94,7 @@ public class FileUtils {
                         throw new IOException("Tar contains multiple files: " + firstName + ", " + entry.getName());
                     }
                     firstName = entry.getName();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(tis));
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(tis, StandardCharsets.UTF_8));
                     content = reader.lines().collect(Collectors.joining("\n"));
                 }
             }
@@ -118,7 +118,8 @@ public class FileUtils {
                     }
                     firstName = entry.getName();
                     try (InputStream is = zipFile.getInputStream(entry);
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                            BufferedReader reader =
+                                    new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                         content = reader.lines().collect(Collectors.joining("\n"));
                     }
                 }

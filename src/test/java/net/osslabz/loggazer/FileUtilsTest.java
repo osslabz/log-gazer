@@ -28,6 +28,8 @@ class FileUtilsTest {
 
     private static final String LOG_WITHOUT_TRAILING_NEWLINE = "2025-01-01 INFO started\n2025-01-01 ERROR failed";
 
+    private static final String UTF8_LOG = "2025-01-01 INFO Grüße aus München";
+
     private static final String APPLE_DOUBLE_CONTENT = "Mac OS X extended attributes";
 
     private static final String DS_STORE_CONTENT = "Bud1";
@@ -54,6 +56,27 @@ class FileUtilsTest {
         File file = write("app.log.gz", gzip(LOG.getBytes(StandardCharsets.UTF_8)));
 
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
+    }
+
+    @Test
+    void decodesGzipFileAsUtf8() throws IOException {
+        File file = write("app.log.gz", gzip(UTF8_LOG.getBytes(StandardCharsets.UTF_8)));
+
+        assertEquals(UTF8_LOG, FileUtils.loadFileContent(file));
+    }
+
+    @Test
+    void decodesLogInZipAsUtf8() throws IOException {
+        File file = write("app.zip", zip(Map.of("app.log", UTF8_LOG)));
+
+        assertEquals(UTF8_LOG, FileUtils.loadFileContent(file));
+    }
+
+    @Test
+    void decodesLogInTarAsUtf8() throws IOException {
+        File file = write("app.tar", tar(Map.of("app.log", UTF8_LOG)));
+
+        assertEquals(UTF8_LOG, FileUtils.loadFileContent(file));
     }
 
     @Test
