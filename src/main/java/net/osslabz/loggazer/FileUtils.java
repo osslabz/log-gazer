@@ -38,7 +38,7 @@ public final class FileUtils {
 
     // Finder writes .DS_Store into every folder it has displayed
     private static boolean isDsStoreFile(String path) {
-        return path.equals(".DS_Store") || path.endsWith("/.DS_Store");
+        return ".DS_Store".equals(path) || path.endsWith("/.DS_Store");
     }
 
     public static String loadFileContent(File file) throws IOException {

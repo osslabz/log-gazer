@@ -58,11 +58,11 @@ public final class Highlighter {
 
                 int fullLineLength = line.length() + 1;
 
-                if (line.equals("{")) {
+                if ("{".equals(line)) {
                     insideJson = true;
                     logSegmentLength = fullLineLength;
                     numSegmentsOpened++;
-                } else if (line.equals("}")) {
+                } else if ("}".equals(line)) {
                     if (logLevelForCurrentSegment != null) {
                         spansBuilder.add(
                                 List.of(logLevelForCurrentSegment.toLowerCase(Locale.ROOT)),

@@ -97,7 +97,7 @@ public class LogGazerApp extends Application {
             return false;
         }
         String paramLowerCase = StringUtils.stripStart(param.trim().toLowerCase(Locale.ROOT), "-");
-        return paramLowerCase.equals("version") || paramLowerCase.equals("v");
+        return "version".equals(paramLowerCase) || "v".equals(paramLowerCase);
     }
 
     @Override
