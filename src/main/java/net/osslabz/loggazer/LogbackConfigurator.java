@@ -15,6 +15,7 @@ import ch.qos.logback.core.spi.ContextAwareBase;
  */
 public class LogbackConfigurator extends ContextAwareBase implements Configurator {
 
+    @Override
     public Configurator.ExecutionStatus configure(LoggerContext loggerContext) {
         addInfo("Setting up default configuration.");
 
