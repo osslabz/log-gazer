@@ -81,7 +81,7 @@ public class TabContent {
 
         public void setMatches(List<Integer> matches) {
 
-            this.matches = matches;
+            this.matches = List.copyOf(matches);
         }
 
         public int getCurrentMatchIndex() {
