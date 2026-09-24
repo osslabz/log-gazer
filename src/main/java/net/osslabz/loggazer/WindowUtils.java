@@ -38,8 +38,8 @@ public final class WindowUtils {
             stage.setHeight(getHeight());
             stage.setMaximized(getMaximized());
 
-            if (WindowUtils.isWindowIsOutOfBounds(stage)) {
-                WindowUtils.moveToPrimaryScreen(stage);
+            if (isWindowIsOutOfBounds(stage)) {
+                moveToPrimaryScreen(stage);
             }
         });
     }
