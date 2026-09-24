@@ -60,9 +60,8 @@ public class FileUtils {
         // Plain .gz files contain a single file by nature
         try (FileInputStream fis = new FileInputStream(file);
                 BufferedInputStream bis = new BufferedInputStream(fis);
-                GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(gzis, StandardCharsets.UTF_8))) {
-            return reader.lines().collect(Collectors.joining("\n"));
+                GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis)) {
+            return readLines(gzis);
         }
     }
 
@@ -94,8 +93,7 @@ public class FileUtils {
                         throw new IOException("Tar contains multiple files: " + firstName + ", " + entry.getName());
                     }
                     firstName = entry.getName();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(tis, StandardCharsets.UTF_8));
-                    content = reader.lines().collect(Collectors.joining("\n"));
+                    content = readLines(tis);
                 }
             }
 
@@ -117,10 +115,8 @@ public class FileUtils {
                         throw new IOException("Zip contains multiple files: " + firstName + ", " + entry.getName());
                     }
                     firstName = entry.getName();
-                    try (InputStream is = zipFile.getInputStream(entry);
-                            BufferedReader reader =
-                                    new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                        content = reader.lines().collect(Collectors.joining("\n"));
+                    try (InputStream is = zipFile.getInputStream(entry)) {
+                        content = readLines(is);
                     }
                 }
             }
@@ -130,5 +126,12 @@ public class FileUtils {
             }
             return content;
         }
+    }
+
+    // leaves the stream open: a tar stream must stay open to reach its next entry
+    private static String readLines(InputStream in) {
+        return new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))
+                .lines()
+                .collect(Collectors.joining("\n"));
     }
 }
