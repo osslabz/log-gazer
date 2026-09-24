@@ -16,7 +16,7 @@ public class TabContent {
 
     private boolean logLevelMarked;
 
-    public TabContent(File file, String originalContent, CodeArea codeArea) {
+    TabContent(File file, String originalContent, CodeArea codeArea) {
 
         this.file = file;
         this.originalContent = originalContent;
@@ -51,12 +51,12 @@ public class TabContent {
         return originalContent;
     }
 
-    public CodeArea getCodeArea() {
+    CodeArea getCodeArea() {
 
         return codeArea;
     }
 
-    public SearchData getSearchData() {
+    SearchData getSearchData() {
 
         return searchData;
     }
