@@ -23,8 +23,8 @@
 
         <!-- Floors, not targets: measured coverage minus five points, capped at 0.90 line and
              0.75 branch, so noise doesn't trip the gate but a real regression does. -->
-        <jacoco.min.line>0.00</jacoco.min.line>
-        <jacoco.min.branch>0.00</jacoco.min.branch>
+        <jacoco.min.line>0.73</jacoco.min.line>
+        <jacoco.min.branch>0.64</jacoco.min.branch>
     </properties>
 
     <licenses>
