@@ -1,5 +1,11 @@
 package net.osslabz.loggazer;
 
+import static net.osslabz.loggazer.FxTestUtils.callOnFxThread;
+import static net.osslabz.loggazer.FxTestUtils.runOnFxThread;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,12 +31,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import static net.osslabz.loggazer.FxTestUtils.callOnFxThread;
-import static net.osslabz.loggazer.FxTestUtils.runOnFxThread;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class LogGazerAppTest {
 
     private static final String JSON_LINES_WITH_TWO_MATCHES =
@@ -43,12 +43,10 @@ class LogGazerAppTest {
 
     private Stage stage;
 
-
     @BeforeAll
     static void startToolkit() throws InterruptedException {
         FxTestUtils.startToolkit();
     }
-
 
     @BeforeEach
     void startApp() throws Exception {
@@ -59,12 +57,10 @@ class LogGazerAppTest {
         });
     }
 
-
     @AfterEach
     void closeApp() throws Exception {
         runOnFxThread(() -> this.stage.close());
     }
-
 
     @Test
     void releasesContentOfClosedTab() throws Exception {
@@ -74,7 +70,6 @@ class LogGazerAppTest {
 
         assertEquals(0, callOnFxThread(() -> this.app.tabContentList.size()));
     }
-
 
     @Test
     void nextMatchAfterFormattingJsonSelectsQuery() throws Exception {
@@ -90,7 +85,6 @@ class LogGazerAppTest {
         assertEquals("needle", callOnFxThread(() -> selectedCodeArea().getSelectedText()));
         assertEquals("2 of 2 matches", callOnFxThread(() -> matchCountLabel().getText()));
     }
-
 
     @Test
     void nextMatchAfterRestoringOriginalJsonSelectsQuery() throws Exception {
@@ -109,17 +103,18 @@ class LogGazerAppTest {
         assertEquals("2 of 2 matches", callOnFxThread(() -> matchCountLabel().getText()));
     }
 
-
     @Test
     void formatsJsonFromFileWithCrlfLineEndings() throws Exception {
-        open(write("app.log", "{\"level\":\"INFO\",\"message\":\"started\"}\r\n{\"level\":\"ERROR\",\"message\":\"failed\"}\r\n"));
+        open(write(
+                "app.log",
+                "{\"level\":\"INFO\",\"message\":\"started\"}\r\n{\"level\":\"ERROR\",\"message\":\"failed\"}\r\n"));
 
         runOnFxThread(() -> button("Format JSON").fire());
 
-        assertEquals("{\n  \"level\" : \"INFO\",\n  \"message\" : \"started\"\n}\n{\n  \"level\" : \"ERROR\",\n  \"message\" : \"failed\"\n}\n",
+        assertEquals(
+                "{\n  \"level\" : \"INFO\",\n  \"message\" : \"started\"\n}\n{\n  \"level\" : \"ERROR\",\n  \"message\" : \"failed\"\n}\n",
                 callOnFxThread(() -> selectedCodeArea().getText()));
     }
-
 
     @Test
     void reenablesMatchNavigationWhenReturningToSearchedTab() throws Exception {
@@ -138,7 +133,6 @@ class LogGazerAppTest {
         assertFalse(callOnFxThread(() -> button("Next ▶").isDisabled()));
     }
 
-
     @Test
     void searchButtonDoesNothingBeforeQueryIsEntered() throws Exception {
         open(write("app.log", "2025-01-01 INFO started\n"));
@@ -146,9 +140,16 @@ class LogGazerAppTest {
         runOnFxThread(() -> button("Search").fire());
 
         assertEquals("", callOnFxThread(() -> matchCountLabel().getText()));
-        assertEquals("", callOnFxThread(() -> this.app.tabContentList.values().iterator().next().getSearchData().getQuery()));
+        assertEquals(
+                "",
+                callOnFxThread(() -> this.app
+                        .tabContentList
+                        .values()
+                        .iterator()
+                        .next()
+                        .getSearchData()
+                        .getQuery()));
     }
-
 
     @Test
     void marksAndUnmarksLogLevelOnSingleLevelLog() throws Exception {
@@ -159,14 +160,20 @@ class LogGazerAppTest {
             button("Mark Log Level").fire();
         });
 
-        assertEquals(List.of(List.of()), callOnFxThread(
-                () -> selectedCodeArea().getStyleSpans(0, selectedCodeArea().getLength()).stream().map(StyleSpan::getStyle).toList()));
+        assertEquals(
+                List.of(List.of()),
+                callOnFxThread(() -> selectedCodeArea()
+                        .getStyleSpans(0, selectedCodeArea().getLength())
+                        .stream()
+                        .map(StyleSpan::getStyle)
+                        .toList()));
     }
-
 
     @Test
     void keepsMarkedFlagInSyncAfterFormattingJson() throws Exception {
-        open(write("app.log", "{\"level\":\"INFO\",\"message\":\"first\"}\n{\"level\":\"INFO\",\"message\":\"second\"}\n"));
+        open(write(
+                "app.log",
+                "{\"level\":\"INFO\",\"message\":\"first\"}\n{\"level\":\"INFO\",\"message\":\"second\"}\n"));
 
         runOnFxThread(() -> {
             button("Mark Log Level").fire();
@@ -174,10 +181,11 @@ class LogGazerAppTest {
             button("Mark Log Level").fire();
         });
 
-        assertTrue(callOnFxThread(() -> selectedCodeArea().getStyleSpans(0, selectedCodeArea().getLength()).stream()
-                .map(StyleSpan::getStyle).anyMatch(style -> !style.isEmpty())));
+        assertTrue(callOnFxThread(
+                () -> selectedCodeArea().getStyleSpans(0, selectedCodeArea().getLength()).stream()
+                        .map(StyleSpan::getStyle)
+                        .anyMatch(style -> !style.isEmpty())));
     }
-
 
     @Test
     void clearsMatchLabelWhenSearchFieldIsEmptied() throws Exception {
@@ -191,9 +199,16 @@ class LogGazerAppTest {
         });
 
         assertEquals("", callOnFxThread(() -> matchCountLabel().getText()));
-        assertEquals(-1, callOnFxThread(() -> this.app.tabContentList.values().iterator().next().getSearchData().getCurrentMatchIndex()));
+        assertEquals(
+                -1,
+                callOnFxThread(() -> this.app
+                        .tabContentList
+                        .values()
+                        .iterator()
+                        .next()
+                        .getSearchData()
+                        .getCurrentMatchIndex()));
     }
-
 
     @Test
     void resetsWindowTitleWhenLastTabCloses() throws Exception {
@@ -203,7 +218,6 @@ class LogGazerAppTest {
 
         assertEquals("Log Gazer", callOnFxThread(() -> this.stage.getTitle()));
     }
-
 
     @Test
     void keepsContentOfReorderedTab() throws Exception {
@@ -215,11 +229,9 @@ class LogGazerAppTest {
         assertEquals(2, callOnFxThread(() -> this.app.tabContentList.size()));
     }
 
-
     private File write(String name, String content) throws IOException {
         return Files.writeString(this.tempDir.resolve(name), content).toFile();
     }
-
 
     private Tab open(File file) throws Exception {
         CompletableFuture<Tab> openedTab = new CompletableFuture<>();
@@ -239,37 +251,45 @@ class LogGazerAppTest {
         return tab;
     }
 
-
     private TabPane tabPane() {
         return (TabPane) ((BorderPane) this.stage.getScene().getRoot()).getCenter();
     }
 
-
     private ToolBar toolBar() {
-        return (ToolBar) ((VBox) ((BorderPane) this.stage.getScene().getRoot()).getTop()).getChildren().get(1);
+        return (ToolBar) ((VBox) ((BorderPane) this.stage.getScene().getRoot()).getTop())
+                .getChildren()
+                .get(1);
     }
-
 
     private Button button(String text) {
         return toolBar().getItems().stream()
-                .filter(item -> item instanceof Button button && button.getText().equals(text))
+                .filter(item ->
+                        item instanceof Button button && button.getText().equals(text))
                 .map(Button.class::cast)
                 .findFirst()
                 .orElseThrow();
     }
 
-
     private TextField searchField() {
-        return toolBar().getItems().stream().filter(TextField.class::isInstance).map(TextField.class::cast).findFirst().orElseThrow();
+        return toolBar().getItems().stream()
+                .filter(TextField.class::isInstance)
+                .map(TextField.class::cast)
+                .findFirst()
+                .orElseThrow();
     }
-
 
     private Label matchCountLabel() {
-        return toolBar().getItems().stream().filter(Label.class::isInstance).map(Label.class::cast).findFirst().orElseThrow();
+        return toolBar().getItems().stream()
+                .filter(Label.class::isInstance)
+                .map(Label.class::cast)
+                .findFirst()
+                .orElseThrow();
     }
 
-
     private CodeArea selectedCodeArea() {
-        return this.app.tabContentList.get(tabPane().getSelectionModel().getSelectedItem().getId()).getCodeArea();
+        return this.app
+                .tabContentList
+                .get(tabPane().getSelectionModel().getSelectedItem().getId())
+                .getCodeArea();
     }
 }

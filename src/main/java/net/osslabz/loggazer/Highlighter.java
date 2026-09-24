@@ -1,10 +1,5 @@
 package net.osslabz.loggazer;
 
-import org.fxmisc.richtext.model.StyleSpans;
-import org.fxmisc.richtext.model.StyleSpansBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -14,6 +9,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Highlighter {
 
@@ -24,7 +23,6 @@ public class Highlighter {
     private Highlighter() {
         // intentionally empty
     }
-
 
     static StyleSpans<Collection<String>> computeEmptyStyle(String currentText) {
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
@@ -41,7 +39,6 @@ public class Highlighter {
     }
 
     private static StyleSpans<Collection<String>> highlightLogLevelJson(String text) {
-
 
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
@@ -67,7 +64,9 @@ public class Highlighter {
                     numSegmentsOpened++;
                 } else if (line.equals("}")) {
                     if (logLevelForCurrentSegment != null) {
-                        spansBuilder.add(List.of(logLevelForCurrentSegment.toLowerCase(Locale.ROOT)), logSegmentLength + fullLineLength);
+                        spansBuilder.add(
+                                List.of(logLevelForCurrentSegment.toLowerCase(Locale.ROOT)),
+                                logSegmentLength + fullLineLength);
                     } else {
                         spansBuilder.add(Collections.emptyList(), logSegmentLength + fullLineLength);
                     }
@@ -83,14 +82,19 @@ public class Highlighter {
                         }
                     } else if (JsonUtils.lineMightBeJson(line)) {
                         String logLevel = determineLogLevelForLine(line);
-                        spansBuilder.add(logLevel != null ? List.of(logLevel.toLowerCase(Locale.ROOT)) : Collections.emptyList(), fullLineLength);
+                        spansBuilder.add(
+                                logLevel != null ? List.of(logLevel.toLowerCase(Locale.ROOT)) : Collections.emptyList(),
+                                fullLineLength);
                     } else {
                         spansBuilder.add(Collections.emptyList(), fullLineLength);
                     }
                 }
                 numLines++;
             }
-            log.debug("file contains {} lines, with {} numSegmentsOpened and {}  numSegmentsClosed closed", numLines, numSegmentsOpened,
+            log.debug(
+                    "file contains {} lines, with {} numSegmentsOpened and {}  numSegmentsClosed closed",
+                    numLines,
+                    numSegmentsOpened,
                     numSegmentsClosed);
 
         } catch (IOException e) {
@@ -99,7 +103,6 @@ public class Highlighter {
 
         return spansBuilder.create();
     }
-
 
     private static String determineLogLevelForLine(String line) {
         String firstLogLevel = null;
@@ -113,7 +116,6 @@ public class Highlighter {
         }
         return firstLogLevel;
     }
-
 
     static StyleSpans<Collection<String>> highlightLogLevelRegularFile(String text) {
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();

@@ -6,13 +6,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.fxmisc.richtext.CodeArea;
 
-
 public class SearchUtils {
 
     private SearchUtils() {
         // intentionally empty
     }
-
 
     public static List<Integer> findAllMatches(CodeArea codeArea, String searchTerm) {
 
@@ -27,5 +25,4 @@ public class SearchUtils {
 
         return matchPositions;
     }
-
 }

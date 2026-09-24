@@ -19,11 +19,9 @@ public class WindowUtils {
     private static final double DEFAULT_WIDTH = 1024;
     private static final double DEFAULT_HEIGHT = 768;
 
-
     private WindowUtils() {
         // intentionally empty
     }
-
 
     protected static void resizeAndPosition(Stage stage) {
         Platform.runLater(() -> {
@@ -66,20 +64,19 @@ public class WindowUtils {
         return UserPreferences.getDouble(PREFS_X, -1);
     }
 
-
     protected static boolean isWindowIsOutOfBounds(Stage stage) {
         for (Screen screen : Screen.getScreens()) {
             Rectangle2D bounds = screen.getVisualBounds();
-            if (stage.getX() + stage.getWidth() - MINIMUM_VISIBLE_WIDTH >= bounds.getMinX() &&
-                    stage.getX() + MINIMUM_VISIBLE_WIDTH <= bounds.getMaxX() &&
-                    bounds.getMinY() <= stage.getY() && // We want the title bar to always be visible.
+            if (stage.getX() + stage.getWidth() - MINIMUM_VISIBLE_WIDTH >= bounds.getMinX()
+                    && stage.getX() + MINIMUM_VISIBLE_WIDTH <= bounds.getMaxX()
+                    && bounds.getMinY() <= stage.getY()
+                    && // We want the title bar to always be visible.
                     stage.getY() + MINIMUM_VISIBLE_HEIGHT < bounds.getMaxY()) {
                 return false;
             }
         }
         return true;
     }
-
 
     protected static void moveToPrimaryScreen(Stage stage) {
         // a maximized window would keep covering the old screen, whatever bounds are set here
@@ -90,7 +87,6 @@ public class WindowUtils {
         stage.setWidth(DEFAULT_WIDTH);
         stage.setHeight(DEFAULT_HEIGHT);
     }
-
 
     protected static void saveWindowState(Stage stage) {
         UserPreferences.putDouble(PREFS_X, stage.getX());

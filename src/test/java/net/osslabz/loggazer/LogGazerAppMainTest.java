@@ -1,14 +1,14 @@
 package net.osslabz.loggazer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LogGazerAppMainTest {
 
@@ -26,15 +26,16 @@ class LogGazerAppMainTest {
         }
     }
 
-
     @Test
     void printsVersionWithoutBlankLines() throws Exception {
         // the java launcher refuses a main class that extends Application when JavaFX is on the class path
         Path outputFile = tempDir.resolve("version.out");
         Process process = new ProcessBuilder(
-                Path.of(System.getProperty("java.home"), "bin", "java").toString(),
-                "-cp", System.getProperty("java.class.path"),
-                AppStarter.class.getName(), "--version")
+                        Path.of(System.getProperty("java.home"), "bin", "java").toString(),
+                        "-cp",
+                        System.getProperty("java.class.path"),
+                        AppStarter.class.getName(),
+                        "--version")
                 .redirectErrorStream(true)
                 .redirectOutput(outputFile.toFile())
                 .start();

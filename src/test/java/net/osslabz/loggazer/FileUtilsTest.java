@@ -1,5 +1,9 @@
 package net.osslabz.loggazer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -18,10 +22,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class FileUtilsTest {
 
     private static final String LOG = "2025-01-01 INFO started\n2025-01-01 ERROR failed\n";
@@ -35,14 +35,12 @@ class FileUtilsTest {
     @TempDir
     Path tempDir;
 
-
     @Test
     void loadsPlainFileVerbatim() throws IOException {
         File file = write("app.log", LOG.getBytes(StandardCharsets.UTF_8));
 
         assertEquals(LOG, FileUtils.loadFileContent(file));
     }
-
 
     @Test
     void replacesInvalidUtf8BytesInPlainFile() throws IOException {
@@ -51,7 +49,6 @@ class FileUtilsTest {
         assertEquals("2025-01-01 INFO Gr\uFFFD\uFFFDe aus M\uFFFDnchen\n", FileUtils.loadFileContent(file));
     }
 
-
     @Test
     void loadsGzipFileAsJoinedLines() throws IOException {
         File file = write("app.log.gz", gzip(LOG.getBytes(StandardCharsets.UTF_8)));
@@ -59,14 +56,12 @@ class FileUtilsTest {
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
 
-
     @Test
     void detectsGzipExtensionIgnoringCase() throws IOException {
         File file = write("APP.LOG.GZ", gzip(LOG.getBytes(StandardCharsets.UTF_8)));
 
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
-
 
     @Test
     void detectsZipExtensionIgnoringCaseInTurkishLocale() throws IOException {
@@ -81,14 +76,12 @@ class FileUtilsTest {
         }
     }
 
-
     @Test
     void loadsSingleLogFromZip() throws IOException {
         File file = write("app.zip", zip(Map.of("app.log", LOG)));
 
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
-
 
     @Test
     void loadsSingleLogFromOneDirectoryDeepInZip() throws IOException {
@@ -97,7 +90,6 @@ class FileUtilsTest {
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
 
-
     @Test
     void ignoresLogsNestedDeeperThanOneDirectoryInZip() throws IOException {
         File file = write("app.zip", zip(Map.of("var/logs/app.log", LOG)));
@@ -105,7 +97,6 @@ class FileUtilsTest {
         IOException e = assertThrows(IOException.class, () -> FileUtils.loadFileContent(file));
         assertEquals("No log file found in zip", e.getMessage());
     }
-
 
     @Test
     void rejectsZipWithMoreThanOneLog() throws IOException {
@@ -118,7 +109,6 @@ class FileUtilsTest {
         assertTrue(e.getMessage().contains("app.log") && e.getMessage().contains("other.log"), e.getMessage());
     }
 
-
     @Test
     void ignoresAppleDoubleEntriesInZip() throws IOException {
         Map<String, String> entries = new LinkedHashMap<>();
@@ -130,7 +120,6 @@ class FileUtilsTest {
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
 
-
     @Test
     void ignoresAppleDoubleEntriesInTarGz() throws IOException {
         Map<String, String> entries = new LinkedHashMap<>();
@@ -140,7 +129,6 @@ class FileUtilsTest {
 
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
-
 
     @Test
     void ignoresDsStoreEntriesInZip() throws IOException {
@@ -152,7 +140,6 @@ class FileUtilsTest {
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
 
-
     @Test
     void ignoresDsStoreEntriesInTar() throws IOException {
         Map<String, String> entries = new LinkedHashMap<>();
@@ -163,14 +150,12 @@ class FileUtilsTest {
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
 
-
     @Test
     void loadsSingleLogFromTarGz() throws IOException {
         File file = write("app.tar.gz", gzip(tar(Map.of("app.log", LOG))));
 
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
-
 
     @Test
     void loadsSingleLogFromTgz() throws IOException {
@@ -179,14 +164,12 @@ class FileUtilsTest {
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
 
-
     @Test
     void loadsSingleLogFromTar() throws IOException {
         File file = write("app.tar", tar(Map.of("app.log", LOG)));
 
         assertEquals(LOG_WITHOUT_TRAILING_NEWLINE, FileUtils.loadFileContent(file));
     }
-
 
     @Test
     void ignoresLogsNestedDeeperThanOneDirectoryInTar() throws IOException {
@@ -195,7 +178,6 @@ class FileUtilsTest {
         IOException e = assertThrows(IOException.class, () -> FileUtils.loadFileContent(file));
         assertEquals("No log file found in tar", e.getMessage());
     }
-
 
     @Test
     void rejectsTarWithMoreThanOneLog() throws IOException {
@@ -208,11 +190,9 @@ class FileUtilsTest {
         assertTrue(e.getMessage().contains("app.log") && e.getMessage().contains("other.log"), e.getMessage());
     }
 
-
     private File write(String name, byte[] content) throws IOException {
         return Files.write(tempDir.resolve(name), content).toFile();
     }
-
 
     private static byte[] gzip(byte[] content) throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -221,7 +201,6 @@ class FileUtilsTest {
         }
         return bytes.toByteArray();
     }
-
 
     private static byte[] tar(Map<String, String> entries) throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -237,7 +216,6 @@ class FileUtilsTest {
         }
         return bytes.toByteArray();
     }
-
 
     private static byte[] zip(Map<String, String> entries) throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();

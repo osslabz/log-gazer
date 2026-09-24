@@ -1,6 +1,15 @@
 package net.osslabz.loggazer;
 
 import ch.qos.logback.classic.Level;
+import java.awt.Taskbar;
+import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import javafx.application.Application;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
@@ -34,17 +43,6 @@ import org.fxmisc.richtext.LineNumberFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Taskbar;
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-
-
 public class LogGazerApp extends Application {
 
     public static final Logger log = LoggerFactory.getLogger(LogGazerApp.class);
@@ -73,7 +71,6 @@ public class LogGazerApp extends Application {
 
     private Label matchCountLabel;
 
-
     public static void main(String[] args) {
 
         if (loggingDisabled) {
@@ -81,8 +78,7 @@ public class LogGazerApp extends Application {
         }
 
         if (args != null && args.length == 1 && isVersionOption(args[0])) {
-            System.out.printf(
-                    """
+            System.out.printf("""
                             log-gazer %s
                             Copyright (C) 2024 Raphael Vullriede (raphael@osslabz.net)
                             License: Apache License Version 2.0, January 2004 <https://www.apache.org/licenses/LICENSE-2.0.txt>.
@@ -95,7 +91,6 @@ public class LogGazerApp extends Application {
         launch(LogGazerApp.class, args);
     }
 
-
     static boolean isVersionOption(String param) {
 
         if (param == null) {
@@ -104,7 +99,6 @@ public class LogGazerApp extends Application {
         String paramLowerCase = StringUtils.stripStart(param.trim().toLowerCase(Locale.ROOT), "-");
         return paramLowerCase.equals("version") || paramLowerCase.equals("v");
     }
-
 
     @Override
     public void start(Stage primaryStage) {
@@ -165,7 +159,6 @@ public class LogGazerApp extends Application {
         // getParameters().getUnnamed()
     }
 
-
     private ToolBar createToolBar() {
 
         ToolBar toolBar = new ToolBar();
@@ -195,22 +188,20 @@ public class LogGazerApp extends Application {
 
         resetSearch();
 
-        toolBar.getItems().addAll(
-                this.buttonFormatJson,
-                new Separator(),
-                this.buttonMarkLogLevel,
-                new Separator(),
-                this.searchField,
-                this.searchButton,
-                this.prevMatchButton,
-                this.nextMatchButton,
-                this.matchCountLabel
-
-        );
+        toolBar.getItems()
+                .addAll(
+                        this.buttonFormatJson,
+                        new Separator(),
+                        this.buttonMarkLogLevel,
+                        new Separator(),
+                        this.searchField,
+                        this.searchButton,
+                        this.prevMatchButton,
+                        this.nextMatchButton,
+                        this.matchCountLabel);
 
         return toolBar;
     }
-
 
     private void performSearch() {
 
@@ -244,7 +235,6 @@ public class LogGazerApp extends Application {
         navigateToCurrentMatch();
     }
 
-
     private void navigateToCurrentMatch() {
 
         TabContent tabContent = this.getCurrentTabContent();
@@ -264,19 +254,18 @@ public class LogGazerApp extends Application {
             int position = tabContent.getSearchData().getCurrentMatchPosition();
             CodeArea codeArea = tabContent.getCodeArea();
             codeArea.moveTo(position);
-            codeArea.selectRange(position, position + tabContent.getSearchData().getQuery().length());
+            codeArea.selectRange(
+                    position, position + tabContent.getSearchData().getQuery().length());
             codeArea.requestFollowCaret();
             codeArea.requestFocus();
         }
     }
-
 
     private void resetSearch() {
 
         searchField.clear();
         matchCountLabel.setText("");
     }
-
 
     private void navigateToNextMatch() {
 
@@ -288,7 +277,6 @@ public class LogGazerApp extends Application {
         navigateToCurrentMatch();
     }
 
-
     private void navigateToPreviousMatch() {
 
         TabContent currentTabContent = this.getCurrentTabContent();
@@ -299,7 +287,6 @@ public class LogGazerApp extends Application {
         navigateToCurrentMatch();
     }
 
-
     private TabContent getCurrentTabContent() {
 
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
@@ -309,7 +296,6 @@ public class LogGazerApp extends Application {
 
         return this.tabContentList.get(selectedTab.getId());
     }
-
 
     private Button createButtonFormatJson() {
 
@@ -348,7 +334,6 @@ public class LogGazerApp extends Application {
         return button;
     }
 
-
     private Button createAndCofigureMarkLogLevelButton() {
 
         Button button = new Button("Mark Log Level");
@@ -375,7 +360,6 @@ public class LogGazerApp extends Application {
         return button;
     }
 
-
     private TabPane createAndConfigureTabPane(Stage primaryStage) {
 
         TabPane tabPane = new TabPane();
@@ -389,7 +373,6 @@ public class LogGazerApp extends Application {
             }
         });
         tabPane.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
-
             Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
             if (selectedTab != null) {
 
@@ -418,7 +401,6 @@ public class LogGazerApp extends Application {
         return tabPane;
     }
 
-
     private void enableButtons(boolean enable) {
 
         this.buttonMarkLogLevel.setDisable(!enable);
@@ -433,7 +415,6 @@ public class LogGazerApp extends Application {
         this.nextMatchButton.setDisable(!enable);
     }
 
-
     void openFileInNewTab(File file) {
 
         Task<String> loadTask = new Task<>() {
@@ -445,7 +426,6 @@ public class LogGazerApp extends Application {
         };
 
         loadTask.setOnSucceeded(event -> {
-
             String rawContent = loadTask.getValue();
 
             CodeArea codeArea = new CodeArea(rawContent);
@@ -479,13 +459,13 @@ public class LogGazerApp extends Application {
 
         loadTask.setOnFailed(event -> {
             String message = event.getSource().getException().getMessage();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load file: %s. Error: %s.".formatted(file.getName(), message));
+            Alert alert = new Alert(
+                    Alert.AlertType.ERROR, "Failed to load file: %s. Error: %s.".formatted(file.getName(), message));
             alert.showAndWait();
         });
 
         new Thread(loadTask).start();
     }
-
 
     private MenuBar createMenuBar() {
 
@@ -499,33 +479,30 @@ public class LogGazerApp extends Application {
         return menuBar;
     }
 
-
     private void openFile() {
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Files", "*.*")
-        );
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Files", "*.*"));
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
             this.openFileInNewTab(file);
         }
     }
 
-
     public static void enableLogging() {
 
         loggingDisabled = false;
     }
 
-
     static void disableLogging() {
 
-        ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger rootLogger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         rootLogger.setLevel(Level.OFF);
 
         // LogbackConfigurator sets this logger to DEBUG explicitly, which outranks the root level
-        ch.qos.logback.classic.Logger appLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("net.osslabz.loggazer");
+        ch.qos.logback.classic.Logger appLogger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("net.osslabz.loggazer");
         appLogger.setLevel(Level.OFF);
     }
 }

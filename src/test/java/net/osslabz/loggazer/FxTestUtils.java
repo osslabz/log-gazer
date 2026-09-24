@@ -16,11 +16,9 @@ final class FxTestUtils {
 
     private static boolean toolkitStarted;
 
-
     private FxTestUtils() {
         // intentionally empty
     }
-
 
     static synchronized void startToolkit() throws InterruptedException {
         if (toolkitStarted) {
@@ -38,7 +36,6 @@ final class FxTestUtils {
         }
         toolkitStarted = true;
     }
-
 
     static <T> T callOnFxThread(Callable<T> action) throws Exception {
         CompletableFuture<T> result = new CompletableFuture<>();
@@ -61,7 +58,6 @@ final class FxTestUtils {
             throw e;
         }
     }
-
 
     static void runOnFxThread(Runnable action) throws Exception {
         callOnFxThread(() -> {

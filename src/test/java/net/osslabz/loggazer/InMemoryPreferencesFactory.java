@@ -15,76 +15,63 @@ public class InMemoryPreferencesFactory implements PreferencesFactory {
 
     private static final Preferences SYSTEM_ROOT = new InMemoryPreferences(null, "");
 
-
     @Override
     public Preferences systemRoot() {
         return SYSTEM_ROOT;
     }
-
 
     @Override
     public Preferences userRoot() {
         return USER_ROOT;
     }
 
-
     static class InMemoryPreferences extends AbstractPreferences {
 
         private final Map<String, String> values = new HashMap<>();
 
-
         InMemoryPreferences(InMemoryPreferences parent, String name) {
             super(parent, name);
         }
-
 
         @Override
         protected void putSpi(String key, String value) {
             this.values.put(key, value);
         }
 
-
         @Override
         protected String getSpi(String key) {
             return this.values.get(key);
         }
-
 
         @Override
         protected void removeSpi(String key) {
             this.values.remove(key);
         }
 
-
         @Override
         protected void removeNodeSpi() {
             // intentionally empty
         }
-
 
         @Override
         protected String[] keysSpi() {
             return this.values.keySet().toArray(new String[0]);
         }
 
-
         @Override
         protected String[] childrenNamesSpi() {
             return new String[0];
         }
-
 
         @Override
         protected AbstractPreferences childSpi(String name) {
             return new InMemoryPreferences(this, name);
         }
 
-
         @Override
         protected void syncSpi() {
             // intentionally empty
         }
-
 
         @Override
         protected void flushSpi() {

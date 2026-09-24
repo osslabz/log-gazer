@@ -1,9 +1,5 @@
 package net.osslabz.loggazer;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,13 +13,15 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 public class FileUtils {
 
     private FileUtils() {
         // intentionally empty
     }
-
 
     private static boolean isValidLogFile(String path) {
         long slashCount = path.chars().filter(ch -> ch == '/').count();
@@ -32,19 +30,16 @@ public class FileUtils {
                 && !isDsStoreFile(path);
     }
 
-
     // macOS archivers store extended attributes as ._<name> entries next to the real file
     private static boolean isAppleDoubleFile(String path) {
         String fileName = path.substring(path.lastIndexOf('/') + 1);
         return fileName.startsWith("._");
     }
 
-
     // Finder writes .DS_Store into every folder it has displayed
     private static boolean isDsStoreFile(String path) {
         return path.equals(".DS_Store") || path.endsWith("/.DS_Store");
     }
-
 
     public static String loadFileContent(File file) throws IOException {
         String fileNameLowerCase = file.getName().toLowerCase(Locale.ROOT);
@@ -61,35 +56,30 @@ public class FileUtils {
         }
     }
 
-
     public static String loadGzipCompressedFile(File file) throws IOException {
         // Plain .gz files contain a single file by nature
         try (FileInputStream fis = new FileInputStream(file);
-             BufferedInputStream bis = new BufferedInputStream(fis);
-             GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(gzis))
-        ) {
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(gzis))) {
             return reader.lines().collect(Collectors.joining("\n"));
         }
     }
 
-
     private static String loadFileFromGzipCompressedTarArchive(File file) throws IOException {
         try (FileInputStream fis = new FileInputStream(file);
-             BufferedInputStream bis = new BufferedInputStream(fis);
-             GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis)) {
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis)) {
             return loadSingleFileFromTarArchive(gzis);
         }
     }
 
-
     private static String loadFileFromTarArchive(File file) throws IOException {
         try (FileInputStream fis = new FileInputStream(file);
-             BufferedInputStream bis = new BufferedInputStream(fis)) {
+                BufferedInputStream bis = new BufferedInputStream(fis)) {
             return loadSingleFileFromTarArchive(bis);
         }
     }
-
 
     private static String loadSingleFileFromTarArchive(InputStream archive) throws IOException {
         try (TarArchiveInputStream tis = new TarArchiveInputStream(archive)) {
@@ -116,7 +106,6 @@ public class FileUtils {
         }
     }
 
-
     public static String loadSingleFileFromZipCompressedArchive(File file) throws IOException {
         try (ZipFile zipFile = new ZipFile(file)) {
             String content = null;
@@ -129,7 +118,7 @@ public class FileUtils {
                     }
                     firstName = entry.getName();
                     try (InputStream is = zipFile.getInputStream(entry);
-                         BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
                         content = reader.lines().collect(Collectors.joining("\n"));
                     }
                 }

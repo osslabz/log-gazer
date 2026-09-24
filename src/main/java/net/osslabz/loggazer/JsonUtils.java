@@ -3,13 +3,11 @@ package net.osslabz.loggazer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JsonUtils {
 
@@ -20,11 +18,9 @@ public class JsonUtils {
     // backslashes that escape each other, then the backslash starting an escape sequence
     private static final String ESCAPE_START = "(?<!\\\\)((?:\\\\\\\\)*)\\\\";
 
-
     private JsonUtils() {
         // intentionally empty
     }
-
 
     static boolean textMightBeJson(String text) {
         if (lineMightBeJson(text)) {
@@ -49,12 +45,10 @@ public class JsonUtils {
         return numLines == numJsonLines;
     }
 
-
     static boolean lineMightBeJson(String line) {
         String trimmed = line.trim();
         return (trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"));
     }
-
 
     static String format(String text) {
 
@@ -76,7 +70,6 @@ public class JsonUtils {
         formattedJson = formattedJson.replaceAll(ESCAPE_START + "t", "$1\t");
         return formattedJson;
     }
-
 
     private static String formatLine(String line) {
         try {
