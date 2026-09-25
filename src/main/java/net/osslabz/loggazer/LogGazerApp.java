@@ -14,9 +14,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -29,7 +27,6 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -112,7 +109,7 @@ public class LogGazerApp extends Application {
         BorderPane root = new BorderPane();
         root.setCenter(this.tabPane);
 
-        MenuBar menuBar = createMenuBar();
+        MenuBar menuBar = FileMenu.createMenuBar(this::openFileInNewTab);
         ToolBar toolBar = createToolBar();
 
         VBox topContainer = new VBox(menuBar, toolBar);
@@ -444,28 +441,6 @@ public class LogGazerApp extends Application {
         });
 
         new Thread(loadTask).start();
-    }
-
-    private MenuBar createMenuBar() {
-
-        MenuBar menuBar = new MenuBar();
-        Menu fileMenu = new Menu("File");
-        MenuItem openMenuItem = new MenuItem("Open");
-        openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
-        openMenuItem.setOnAction(e -> openFile());
-        fileMenu.getItems().add(openMenuItem);
-        menuBar.getMenus().add(fileMenu);
-        return menuBar;
-    }
-
-    private void openFile() {
-
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Files", "*.*"));
-        File file = fileChooser.showOpenDialog(null);
-        if (file != null) {
-            this.openFileInNewTab(file);
-        }
     }
 
     public static void enableLogging() {
