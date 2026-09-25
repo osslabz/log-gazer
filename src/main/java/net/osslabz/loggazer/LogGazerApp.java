@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 import javafx.application.Application;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
@@ -23,16 +22,12 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -404,29 +399,9 @@ public class LogGazerApp extends Application {
         loadTask.setOnSucceeded(event -> {
             String rawContent = loadTask.getValue();
 
-            CodeArea codeArea = new CodeArea(rawContent);
-            codeArea.setEditable(false);
-            codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+            TabContent newTabContent = LogTabFactory.createContent(file, rawContent);
+            Tab tab = LogTabFactory.createTab(newTabContent);
 
-            TabContent newTabContent = new TabContent(file, codeArea.getText(), codeArea);
-
-            VirtualizedScrollPane<CodeArea> scrollPane = new VirtualizedScrollPane<>(codeArea);
-
-            VBox.setVgrow(scrollPane, Priority.ALWAYS);
-            VBox contentBox = new VBox(scrollPane);
-            contentBox.setFillWidth(true);
-
-            scrollPane.addEventFilter(ScrollEvent.SCROLL, scrollEvent -> {
-                log.trace("scrollEvent={}", scrollEvent);
-                scrollPane.scrollYBy(scrollEvent.getDeltaY() * -1);
-                //   scrollPane.scrollXBy(scrollEvent.getDeltaX());
-
-                scrollEvent.consume();
-            });
-
-            Tab tab = new Tab(file.getName(), contentBox);
-
-            tab.setId(UUID.randomUUID() + "_" + file.getName());
             this.tabContentList.put(tab.getId(), newTabContent);
             this.tabPane.getTabs().add(tab);
 
