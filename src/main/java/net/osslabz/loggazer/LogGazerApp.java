@@ -1,7 +1,5 @@
 package net.osslabz.loggazer;
 
-import java.awt.Taskbar;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -24,7 +22,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -101,30 +98,14 @@ public class LogGazerApp extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        if (Taskbar.isTaskbarSupported()) {
-            log.debug("Taskbar is supported");
-            var taskbar = Taskbar.getTaskbar();
-
-            if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
-                log.debug("Taskbar.Feature.ICON_IMAGE is supported");
-                final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-                var dockIcon = defaultToolkit.getImage(getClass().getResource("/icon/icon-256.png"));
-                taskbar.setIconImage(dockIcon);
-            } else {
-                log.debug("Taskbar.Feature.ICON_IMAGE is NOT supported");
-            }
-        } else {
-            log.debug("Taskbar is NOT supported");
-        }
+        AppIcon.setTaskbarIcon();
 
         primaryStage.setTitle(LOG_GAZER);
 
         WindowUtils.resizeAndPosition(primaryStage);
         primaryStage.setOnCloseRequest((WindowEvent event) -> WindowUtils.saveWindowState(primaryStage));
 
-        Image appIconImage = new Image(LogGazerApp.class.getResourceAsStream("/icon/icon-256.png"));
-
-        primaryStage.getIcons().add(appIconImage);
+        AppIcon.addTo(primaryStage);
 
         this.tabPane = createAndConfigureTabPane(primaryStage);
 
