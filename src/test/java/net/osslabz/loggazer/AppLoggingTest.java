@@ -8,7 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
-class LogGazerAppLoggingTest {
+class AppLoggingTest {
 
     private static final Logger APP_LOGGER = (Logger) LoggerFactory.getLogger("net.osslabz.loggazer");
 
@@ -20,10 +20,10 @@ class LogGazerAppLoggingTest {
     }
 
     @Test
-    void disableLoggingSilencesTheAppLogger() {
+    void disableSilencesTheAppLogger() {
         APP_LOGGER.setLevel(Level.DEBUG);
 
-        LogGazerApp.disableLogging();
+        AppLogging.disable();
 
         assertEquals(Level.OFF, APP_LOGGER.getLevel());
     }

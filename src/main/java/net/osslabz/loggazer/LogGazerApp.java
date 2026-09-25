@@ -1,6 +1,5 @@
 package net.osslabz.loggazer;
 
-import ch.qos.logback.classic.Level;
 import java.awt.Taskbar;
 import java.awt.Toolkit;
 import java.io.File;
@@ -74,7 +73,7 @@ public class LogGazerApp extends Application {
     public static void main(String[] args) {
 
         if (loggingDisabled) {
-            disableLogging();
+            AppLogging.disable();
         }
 
         if (args != null && args.length == 1 && isVersionOption(args[0])) {
@@ -491,17 +490,5 @@ public class LogGazerApp extends Application {
     public static void enableLogging() {
 
         loggingDisabled = false;
-    }
-
-    static void disableLogging() {
-
-        ch.qos.logback.classic.Logger rootLogger =
-                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        rootLogger.setLevel(Level.OFF);
-
-        // LogbackConfigurator sets this logger to DEBUG explicitly, which outranks the root level
-        ch.qos.logback.classic.Logger appLogger =
-                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("net.osslabz.loggazer");
-        appLogger.setLevel(Level.OFF);
     }
 }
