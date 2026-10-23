@@ -17,6 +17,9 @@
         <project.build.outputTimestamp>2024-12-02T20:20:06Z</project.build.outputTimestamp>
         <maven.compiler.release>${osslabz.java.version}</maven.compiler.release>
 
+        <!-- The release ships binaries; nothing consumes the jar from GitHub Packages. -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+
         <mainClass>net.osslabz.loggazer.LogGazerApp</mainClass>
         <!-- java -jar refuses a Main-Class that extends Application unless JavaFX is on the module path -->
         <jarMainClass>net.osslabz.loggazer.AppStarter</jarMainClass>

@@ -5,7 +5,7 @@ on:
     branches-ignore:
       - main
   # Pushes made with GITHUB_TOKEN start no run, so the release and the Dependabot merge
-  # dispatch this workflow on dev to build and publish what they pushed.
+  # dispatch this workflow on dev to build what they pushed.
   workflow_dispatch:
 
 concurrency:
@@ -59,8 +59,7 @@ jobs:
         with:
           default-branch: dev
 
-      # This one publishes to GitHub Packages rather than Central, so every branch publishes:
-      # the Central limits that keep the other osslabz repos to dev do not apply here.
+      # The pom sets maven.deploy.skip, so deploy uploads nothing.
       # Dependabot's runs get a read-only token, so they verify instead.
       - name: maven-build-publish
         # the JavaFX tests need a display
