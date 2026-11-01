@@ -169,7 +169,7 @@ jobs:
       # No `cache: maven`: the tag pom carries a unique version, so the key never hits, and the
       # two macOS legs would share one key with no architecture in it (ci-audit 2.5).
       - name: setup-graalvm
-        uses: graalvm/setup-graalvm@27b360dbb857524eaf0b4c4cef364d38e5b4f173 # v1.6.7
+        uses: graalvm/setup-graalvm@f70bc8032f90a104502824a54bcb94b6f01715bc # v1.6.8
         with:
           distribution: 'liberica'
           # On JDK 24+ Liberica NIK reports the image as dynamically linked, so AWT loads
