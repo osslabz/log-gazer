@@ -52,6 +52,7 @@ public final class Highlighter {
             boolean insideJson = false;
 
             int logSegmentLength = 0;
+            int consumedLength = 0;
 
             int numLines = 0;
             int numSegmentsOpened = 0;
@@ -59,7 +60,8 @@ public final class Highlighter {
 
             while ((line = reader.readLine()) != null) {
 
-                int fullLineLength = line.length() + 1;
+                int fullLineLength = fullLineLength(text, consumedLength, line);
+                consumedLength += fullLineLength;
 
                 if ("{".equals(line)) {
                     insideJson = true;
@@ -107,6 +109,11 @@ public final class Highlighter {
         return spansBuilder.create();
     }
 
+    // the last line has no line feed when the text doesn't end with one
+    private static int fullLineLength(String text, int consumedLength, String line) {
+        return Math.min(line.length() + 1, text.length() - consumedLength);
+    }
+
     private static String determineLogLevelForLine(String line) {
         String firstLogLevel = null;
         int firstIndex = Integer.MAX_VALUE;
@@ -129,6 +136,7 @@ public final class Highlighter {
 
             String lastLogLevel = null;
             String line = null;
+            int consumedLength = 0;
 
             while ((line = reader.readLine()) != null) {
                 numLines++;
@@ -145,7 +153,9 @@ public final class Highlighter {
                 } else {
                     log.trace("No log level found on line {} and no previous logLevel set, no highlighting", numLines);
                 }
-                spansBuilder.add(styles, line.length() + 1);
+                int fullLineLength = fullLineLength(text, consumedLength, line);
+                consumedLength += fullLineLength;
+                spansBuilder.add(styles, fullLineLength);
             }
         } catch (IOException e) {
             log.error("Couldn't read the text to highlight", e);

@@ -11,6 +11,8 @@ import java.util.Locale;
 import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class HighlighterTest {
 
@@ -68,6 +70,12 @@ class HighlighterTest {
     void emptyTextProducesNoSpansWithoutFailing() {
         assertDoesNotThrow(() -> Highlighter.highlightLogLevel(""));
         assertEquals(0, Highlighter.highlightLogLevel("").length());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"INFO a", "INFO a\nERROR b", "{\"level\":\"INFO\"}", "{\n  \"level\" : \"INFO\"\n}"})
+    void spansCoverTextWithoutTrailingLineFeed(String text) {
+        assertEquals(text.length(), Highlighter.highlightLogLevel(text).length());
     }
 
     private static List<StyleSpan<Collection<String>>> unstyledSpans(StyleSpans<Collection<String>> spans) {
