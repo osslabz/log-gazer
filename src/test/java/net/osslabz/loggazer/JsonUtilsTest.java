@@ -91,6 +91,12 @@ class JsonUtilsTest {
         assertFalse(JsonUtils.textMightBeJson("[INFO] started\n[ERROR] failed\n"));
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"", " ", "\n", " \t\r\n "})
+    void rejectsEmptyOrBlankText(String text) {
+        assertFalse(JsonUtils.textMightBeJson(text));
+    }
+
     @Test
     void formatReturnsEmptyTextUnchanged() {
         assertEquals("", JsonUtils.format(""));

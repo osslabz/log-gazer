@@ -23,6 +23,9 @@ public final class JsonUtils {
     }
 
     static boolean textMightBeJson(String text) {
+        if (text.isBlank()) {
+            return false;
+        }
         if (lineMightBeJson(text)) {
             return true;
         }
