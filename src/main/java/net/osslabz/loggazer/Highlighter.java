@@ -68,13 +68,7 @@ public final class Highlighter {
                     logSegmentLength = fullLineLength;
                     numSegmentsOpened++;
                 } else if ("}".equals(line)) {
-                    if (logLevelForCurrentSegment != null) {
-                        spansBuilder.add(
-                                List.of(logLevelForCurrentSegment.toLowerCase(Locale.ROOT)),
-                                logSegmentLength + fullLineLength);
-                    } else {
-                        spansBuilder.add(Collections.emptyList(), logSegmentLength + fullLineLength);
-                    }
+                    addSegment(spansBuilder, logLevelForCurrentSegment, logSegmentLength + fullLineLength);
                     logLevelForCurrentSegment = null;
                     insideJson = false;
                     logSegmentLength = 0;
@@ -96,6 +90,9 @@ public final class Highlighter {
                 }
                 numLines++;
             }
+            if (insideJson) {
+                addSegment(spansBuilder, logLevelForCurrentSegment, logSegmentLength);
+            }
             log.debug(
                     "file contains {} lines, with {} numSegmentsOpened and {}  numSegmentsClosed closed",
                     numLines,
@@ -107,6 +104,11 @@ public final class Highlighter {
         }
 
         return spansBuilder.create();
+    }
+
+    private static void addSegment(StyleSpansBuilder<Collection<String>> spansBuilder, String logLevel, int length) {
+        spansBuilder.add(
+                logLevel != null ? List.of(logLevel.toLowerCase(Locale.ROOT)) : Collections.emptyList(), length);
     }
 
     // the last line has no line feed when the text doesn't end with one

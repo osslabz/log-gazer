@@ -78,6 +78,18 @@ class HighlighterTest {
         assertEquals(text.length(), Highlighter.highlightLogLevel(text).length());
     }
 
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "{\n  \"level\" : \"INFO\"\n",
+                "{\"a\":1}\n{\n  \"level\" : \"INFO\"",
+                "{\n  \"level\" : \"INFO\"\n}\n}\n{\"a\":1}\n",
+                "{\n  \"level\" : \"INFO\", \"a\" : {}"
+            })
+    void spansCoverJsonWithUnbalancedBraces(String text) {
+        assertEquals(text.length(), Highlighter.highlightLogLevel(text).length());
+    }
+
     private static List<StyleSpan<Collection<String>>> unstyledSpans(StyleSpans<Collection<String>> spans) {
         return spans.stream().filter(span -> span.getStyle().isEmpty()).toList();
     }
