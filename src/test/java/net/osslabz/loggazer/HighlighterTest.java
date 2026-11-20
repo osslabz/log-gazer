@@ -224,6 +224,40 @@ class HighlighterTest {
         return spans.stream().map(StyleSpan::getStyle).toList();
     }
 
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "INFO a\r\nERROR b\r\n",
+                "INFO a\r\nERROR b",
+                "INFO a\nERROR b\r\nWARN c\rDEBUG d\n",
+                "INFO a\r",
+                "INFO a\r\r\n\n",
+                "{\"level\":\"INFO\"}\r\n{\"level\":\"ERROR\"}\r\n",
+                "{\r\n  \"level\" : \"INFO\"\r\n}\r\n{\r\n  \"level\" : \"ERROR\"\r\n}\r\n",
+                "{\"a\":1}\n{\r\n  \"level\" : \"INFO\"\r\n}\r"
+            })
+    void spansCoverTextWithAnyLineEnding(String text) {
+        assertEquals(text.length(), Highlighter.highlightLogLevel(text).length());
+    }
+
+    @Test
+    void assignsLevelsToLinesSeparatedByMixedLineEndings() {
+        String text = "INFO a\r\nERROR b\nWARN c\rDEBUG d";
+
+        assertEquals(
+                List.of(List.of("info"), List.of("error"), List.of("warn"), List.of("debug")),
+                styles(Highlighter.highlightLogLevelRegularFile(text)));
+    }
+
+    @Test
+    void keepsSpanLengthsPerLineWithCarriageReturnLineFeed() {
+        List<Integer> lengths = Highlighter.highlightLogLevelRegularFile("INFO a\r\nERROR b\r\n").stream()
+                .map(StyleSpan::getLength)
+                .toList();
+
+        assertEquals(List.of(8, 9), lengths);
+    }
+
     private static List<StyleSpan<Collection<String>>> unstyledSpans(StyleSpans<Collection<String>> spans) {
         return spans.stream().filter(span -> span.getStyle().isEmpty()).toList();
     }
