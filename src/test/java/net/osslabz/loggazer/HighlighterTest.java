@@ -1,5 +1,6 @@
 package net.osslabz.loggazer;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Files;
@@ -61,6 +62,12 @@ class HighlighterTest {
         } finally {
             Locale.setDefault(defaultLocale);
         }
+    }
+
+    @Test
+    void emptyTextProducesNoSpansWithoutFailing() {
+        assertDoesNotThrow(() -> Highlighter.highlightLogLevel(""));
+        assertEquals(0, Highlighter.highlightLogLevel("").length());
     }
 
     private static List<StyleSpan<Collection<String>>> unstyledSpans(StyleSpans<Collection<String>> spans) {

@@ -31,6 +31,9 @@ public final class Highlighter {
     }
 
     static StyleSpans<Collection<String>> highlightLogLevel(String text) {
+        if (text.isEmpty()) {
+            return computeEmptyStyle(text);
+        }
         if (JsonUtils.textMightBeJson(text)) {
             return highlightLogLevelJson(text);
         } else {
