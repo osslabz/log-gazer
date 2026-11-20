@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -211,6 +212,14 @@ class FileUtilsTest {
 
         IOException e = assertThrows(IOException.class, () -> FileUtils.loadFileContent(file));
         assertTrue(e.getMessage().contains("app.log") && e.getMessage().contains("other.log"), e.getMessage());
+    }
+
+    @Test
+    void failsOnTruncatedGzipWithIoException() throws IOException {
+        byte[] full = gzip(LOG.repeat(1000).getBytes(StandardCharsets.UTF_8));
+        File file = write("cut.log.gz", Arrays.copyOf(full, full.length / 2));
+
+        assertThrows(IOException.class, () -> FileUtils.loadFileContent(file));
     }
 
     private File write(String name, byte[] content) throws IOException {

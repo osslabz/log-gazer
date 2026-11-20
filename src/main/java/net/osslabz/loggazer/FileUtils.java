@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Locale;
@@ -129,9 +130,13 @@ public final class FileUtils {
     }
 
     // leaves the stream open: a tar stream must stay open to reach its next entry
-    private static String readLines(InputStream in) {
-        return new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))
-                .lines()
-                .collect(Collectors.joining("\n"));
+    private static String readLines(InputStream in) throws IOException {
+        try {
+            return new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))
+                    .lines()
+                    .collect(Collectors.joining("\n"));
+        } catch (UncheckedIOException e) {
+            throw new IOException(e.getCause().getMessage(), e);
+        }
     }
 }
