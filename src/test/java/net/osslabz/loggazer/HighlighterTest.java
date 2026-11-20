@@ -5,10 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.junit.jupiter.api.Test;
@@ -182,9 +185,84 @@ class HighlighterTest {
         String text = randomLogText(new Random(seed));
 
         assertEquals(
-                text.length(), Highlighter.highlightLogLevelRegularFile(text).length());
+                expectedStylePerCharacter(text), stylePerCharacter(Highlighter.highlightLogLevelRegularFile(text)));
         assertEquals(text.length(), Highlighter.highlightLogLevel(text).length());
     }
+
+    @Test
+    void jsonSegmentWithCarriageReturnLineFeedIsOneSpanOfItsExactLength() {
+        String text = "{\r\n \"level\":\"INFO\"\r\n}\r\n";
+
+        StyleSpans<Collection<String>> spans = Highlighter.highlightLogLevel(text);
+
+        assertEquals(1, spans.getSpanCount());
+        assertEquals(text.length(), spans.getStyleSpan(0).getLength());
+        assertEquals(List.of("info"), List.copyOf(spans.getStyleSpan(0).getStyle()));
+    }
+
+    @Test
+    void eachJsonSegmentWithCarriageReturnLineFeedKeepsItsOwnSpanLength() {
+        String first = "{\r\n \"level\":\"INFO\"\r\n}\r\n";
+        String second = "{\r\n \"level\":\"ERROR\"\r\n}\r\n";
+
+        List<Integer> lengths = Highlighter.highlightLogLevel(first + second).stream()
+                .map(StyleSpan::getLength)
+                .toList();
+
+        assertEquals(List.of(first.length(), second.length()), lengths);
+    }
+
+    @Test
+    void jsonLineSpansKeepPerLineLengthsWithMixedLineEndings() {
+        String text = "{\"level\":\"INFO\"}\r\n{\"level\":\"ERROR\"}\r{\"level\":\"WARN\"}\n";
+
+        assertEquals(
+                List.of(
+                        "{\"level\":\"INFO\"}\r\n".length(),
+                        "{\"level\":\"ERROR\"}\r".length(),
+                        "{\"level\":\"WARN\"}\n".length()),
+                Highlighter.highlightLogLevel(text).stream()
+                        .map(StyleSpan::getLength)
+                        .toList());
+    }
+
+    private static List<List<String>> stylePerCharacter(StyleSpans<Collection<String>> spans) {
+        List<List<String>> perCharacter = new ArrayList<>();
+        for (StyleSpan<Collection<String>> span : spans) {
+            for (int i = 0; i < span.getLength(); i++) {
+                perCharacter.add(List.copyOf(span.getStyle()));
+            }
+        }
+        return perCharacter;
+    }
+
+    // independent of Highlighter: a line takes the earliest level in it, else the previous line's level
+    private static List<List<String>> expectedStylePerCharacter(String text) {
+        List<List<String>> perCharacter = new ArrayList<>();
+        Matcher lines = Pattern.compile("([^\r\n]*)(\r\n|\n|\r)?").matcher(text);
+        List<String> previous = List.of();
+        int position = 0;
+        while (position < text.length() && lines.find(position)) {
+            String content = lines.group(1);
+            List<String> style = previous;
+            int earliest = Integer.MAX_VALUE;
+            for (String level : List.of("FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE")) {
+                int index = content.indexOf(level);
+                if (index != -1 && index < earliest) {
+                    earliest = index;
+                    style = List.of(level.toLowerCase(Locale.ROOT));
+                }
+            }
+            previous = style;
+            for (int i = lines.start(); i < lines.end(); i++) {
+                perCharacter.add(style);
+            }
+            position = lines.end();
+        }
+        return perCharacter;
+    }
+
+    private static final String[] TERMINATORS = {"\n", "\r\n", "\r"};
 
     private static String randomLogText(Random random) {
         String[] fragments = {
@@ -215,7 +293,7 @@ class HighlighterTest {
             for (int j = 0; j < fragmentCount; j++) {
                 text.append(fragments[random.nextInt(fragments.length)]);
             }
-            text.append('\n');
+            text.append(TERMINATORS[random.nextInt(TERMINATORS.length)]);
         }
         return text.toString();
     }
